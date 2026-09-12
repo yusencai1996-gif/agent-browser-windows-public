@@ -1,0 +1,3 @@
+# Preserve snapshot and original third-party license bytes across checkout.
+# MANIFEST.json describes bytes, including intentional source line endings.
+* -text

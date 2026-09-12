@@ -1,0 +1,11 @@
+node_modules/
+.local/
+artifacts/
+downloads/
+profiles/
+backups/
+.env
+.env.*
+*.local.json
+*.pem
+*.key

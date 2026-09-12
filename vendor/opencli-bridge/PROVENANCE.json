@@ -1,0 +1,42 @@
+{
+  "version": "1.0.23",
+  "opencliVersion": "1.8.7",
+  "sourceCommit": "87b60a36590c3e2a466c37266c3348d73d7f68fe",
+  "url": "https://github.com/jackwener/OpenCLI/releases/download/v1.8.7/opencli-extension-v1.0.23.zip",
+  "zipSha256": "e3399db1e9dd626519a8719d638d3c3813494d1f030c1e96799e05ebe7ba5340",
+  "license": "Apache-2.0",
+  "files": [
+    {
+      "file": "dist/background.js",
+      "sha256": "5519a88379cfaf745d6acc2bb795246a3d4c3c4b010f3480f204f0b8062e8f66"
+    },
+    {
+      "file": "icons/icon-128.png",
+      "sha256": "4b146c873a1f6e21f129e9d9ad7a6e56d48f64f536ef160468e967f265c424a4"
+    },
+    {
+      "file": "icons/icon-16.png",
+      "sha256": "41f055dfbcfa48a06d81c2733d686a39ab6c4aae3efa1e26247dddf4fa00ec95"
+    },
+    {
+      "file": "icons/icon-32.png",
+      "sha256": "415856e54bd712b13bc369b404cc0676080ad9fe5836bd82f5e066097ebc33e7"
+    },
+    {
+      "file": "icons/icon-48.png",
+      "sha256": "60a028b636ae832d995158ecec742c47cad7784187ab06108410154194217184"
+    },
+    {
+      "file": "manifest.json",
+      "sha256": "74e678a6d0e280789364f6dfd3da9f2f7fe25895ad99a2363440646f3d72cbfb"
+    },
+    {
+      "file": "popup.html",
+      "sha256": "37215847a4be981631c457678a1125f44ba8d2d1859973290f2bfc1e01b35a9d"
+    },
+    {
+      "file": "popup.js",
+      "sha256": "e2422dafc81ea9c83d5d6b483dd6ad08c84ffcc922a46be4cd64b95e23e3c3b3"
+    }
+  ]
+}

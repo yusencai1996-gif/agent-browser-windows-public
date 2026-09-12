@@ -1,0 +1,26 @@
+{
+  "name": "agent-browser-windows",
+  "version": "0.8.0-alpha.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "setup": "node src/cli.mjs setup",
+    "doctor": "node src/cli.mjs doctor",
+    "test": "node scripts/test.mjs",
+    "test:browser": "node scripts/browser-smoke.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.27.1",
+    "ajv": "8.20.0",
+    "ws": "8.20.0",
+    "playwright": "1.63.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yusencai1996-gif/agent-browser-windows-public.git"
+  }
+}

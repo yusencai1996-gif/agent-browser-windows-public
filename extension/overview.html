@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; frame-src 'none'; connect-src 'none'">
+  <title>任务总览 · Agent 浏览器</title>
+  <link rel="stylesheet" href="overview.css">
+</head>
+<body>
+  <header><div class="brand"><img src="brand/avatar.png" alt="Agent 浏览器"><span>Agent 浏览器<small>任务总览</small></span></div><span id="connection" role="status">连接中</span><button id="reconnect">重新连接</button><button id="add-human" class="primary">＋ 我的窗口</button></header>
+  <main>
+    <aside><div class="section-title"><h1>工作窗口</h1><span id="count">—</span></div><nav id="tasks" aria-label="任务与人类窗口"></nav></aside>
+    <section class="viewer" aria-label="当前页面预览">
+      <div class="viewer-head"><div><h2 id="task-title">选择一个窗口</h2><p id="task-status">正在读取实际任务</p></div><button id="takeover" hidden>接管</button></div>
+      <div id="tabs" aria-label="任务标签"></div>
+      <div class="preview"><img id="image" alt="所选页面的最近预览" hidden><div id="placeholder">暂无预览</div></div>
+      <div class="viewer-foot"><div><p id="page-title"></p><small id="freshness">只在总览可见时更新</small></div><button id="show" disabled>查看页面 ↗</button><button id="close-human" class="danger" hidden>关闭我的页面</button></div>
+    </section>
+  </main>
+  <footer><span id="notice" role="status" aria-live="polite"></span><span id="external-note"></span></footer>
+  <dialog id="confirm"><h2 id="confirm-title"></h2><p id="confirm-text"></p><div><button id="cancel">取消</button><button id="confirm-action" class="primary">确认</button></div></dialog>
+  <script src="overview.js"></script>
+</body>
+</html>
