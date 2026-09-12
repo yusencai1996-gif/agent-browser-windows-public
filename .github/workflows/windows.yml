@@ -6,6 +6,9 @@ jobs:
   core:
     runs-on: windows-latest
     timeout-minutes: 10
+    env:
+      # Keep the test parent canonical; runner TEMP may use a short-path alias.
+      ABW_TEST_TMP: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

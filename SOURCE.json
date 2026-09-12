@@ -700,9 +700,9 @@
       "origin": {
         "file": "release/public-template/.github/workflows/windows.yml",
         "mode": "public-template",
-        "sha256": "e8f5fbf9a8c9171ef4feac71afaabb95dfb4e6b80cc4399317ad22078d05615c"
+        "sha256": "fb89e3edc6bb1d7e1a59f6749c2f90077d9274328f664551c6e78294f476c985"
       },
-      "sha256": "e8f5fbf9a8c9171ef4feac71afaabb95dfb4e6b80cc4399317ad22078d05615c"
+      "sha256": "fb89e3edc6bb1d7e1a59f6749c2f90077d9274328f664551c6e78294f476c985"
     },
     {
       "file": "CHANGELOG.md",
