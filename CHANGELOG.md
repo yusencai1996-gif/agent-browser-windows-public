@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.1-alpha.1
+
+- Separate Windows caller pipe handles from the background host; bounded readiness and explicit same-mode reuse / mode-conflict / closed-instance results.
+- Local whitelist diagnostics with correlation IDs, bounded retention and optional disabling; no telemetry or raw command/page data.
+- Extension context/generation readiness checks and actionable startup phases. Release validation is recorded separately from implementation status.
+
 ## 0.8.0-alpha.1
 
 First public-source candidate, based on the 0.8.0 implementation. Adds neutral code-generated branding, portable writable Windows installation/npm lookup, isolated public tests, documentation and synthetic application screenshots. No private Git history, runtime state, browser binaries or personal avatar is included.

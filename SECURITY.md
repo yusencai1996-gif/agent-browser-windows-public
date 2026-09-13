@@ -12,4 +12,6 @@ Do not bypass website verification, risk controls or authorization. Site/Agent c
 
 ## Reporting
 
+Optional local diagnostic events are bounded to about12MiB under the protected `.local/logs` directory. They record fixed lifecycle metadata only, not raw stderr, URLs, task names or credentials. Events are not automatically sent anywhere; use the bounded `diagnostics` command to review what you choose to share. Logging is best-effort and is not proof that an uncertain website action was rolled back. `diagnostics --off` disables new events for this installation without erasing existing records.
+
 No dedicated private vulnerability reporting channel is configured in this source snapshot. Do not post exploitable details, credentials or personal pages publicly. You may open a minimal issue requesting a private contact route without sensitive details, then wait for the maintainer to establish one. There is no promised response SLA. Before attaching logs, remove personal paths and website data; prefer a local synthetic reproduction.

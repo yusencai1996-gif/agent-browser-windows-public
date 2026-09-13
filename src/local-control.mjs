@@ -5,6 +5,7 @@ import os from 'node:os';
 import http from 'node:http';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import {correlationId,logEvent} from './runtime-log.mjs';
 export const ROOT=path.resolve(import.meta.dirname,'..');
 export const LOCAL=path.join(ROOT,'.local');
 export const STATE=path.join(LOCAL,'host.json');
@@ -15,15 +16,19 @@ export async function secureLocal() {
   if((await fs.lstat(LOCAL)).isSymbolicLink() || (await fs.realpath(LOCAL)).toLowerCase()!==LOCAL.toLowerCase())throw new Error('UNSAFE_WORKSPACE');
   execFileSync('icacls',[LOCAL,'/inheritance:r','/grant:r',`${process.env.USERDOMAIN}\\${os.userInfo().username}:(OI)(CI)F`,'*S-1-5-18:(OI)(CI)F'],{stdio:'ignore',windowsHide:true});
 }
-export async function request(action,args={}) {
+export async function request(action,args={}, {timeoutMs=45000}={}) {
+  const record=(phase,extra)=>{if(action!=='health')logEvent(phase,{action,...extra});};record('request_begin',{state:'begin'});
   let state;try{state=JSON.parse(await fs.readFile(STATE,'utf8'));}catch{throw new Error('HOST_OFFLINE');}
   return new Promise((resolve,reject)=>{
-    const req=http.request({socketPath:PIPE,path:'/',method:'POST',headers:{authorization:`Bearer ${state.token}`,'content-type':'application/json'}},res=>{
+    let settled=false;
+    const finish=(error,data)=>{if(settled)return;settled=true;clearTimeout(timer);record('request_end',{state:error?'error':'ok',...(error?{code:error.message}:{})});error?reject(error):resolve(data);};
+    const timer=setTimeout(()=>req.destroy(new Error('HOST_TIMEOUT')),timeoutMs);
+    const req=http.request({socketPath:PIPE,path:'/',method:'POST',agent:false,headers:{authorization:`Bearer ${state.token}`,'content-type':'application/json'}},res=>{
       let data='';res.on('data',c=>data+=c);res.on('end',()=>{
-        try{const result=JSON.parse(data);result.ok?resolve(result.data):reject(new Error(result.error));}catch{reject(new Error('HOST_PROTOCOL'));}
+        try{const result=JSON.parse(data);result.ok?finish(null,result.data):finish(new Error(result.error));}catch{finish(new Error('HOST_PROTOCOL'));}
       });
+      res.once('aborted',()=>finish(new Error('HOST_PROTOCOL')));res.once('error',()=>finish(new Error('HOST_PROTOCOL')));
     });
-    req.setTimeout(45000,()=>req.destroy(new Error('HOST_TIMEOUT')));
-    req.on('error',e=>reject(new Error(e.message==='HOST_TIMEOUT'?'HOST_TIMEOUT':'HOST_OFFLINE')));req.end(JSON.stringify({action,...args}));
+    req.on('error',e=>finish(new Error(e.message==='HOST_TIMEOUT'?'HOST_TIMEOUT':'HOST_OFFLINE')));req.end(JSON.stringify({action,...args,correlationId}));
   });
 }

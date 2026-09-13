@@ -7,7 +7,7 @@ import {TOOLS} from './tools.mjs';
 import {connectTask} from './tool-client.mjs';
 export async function runMcp(grant){
   const client=await connectTask(grant);
-  const server=new Server({name:'agent-browser-windows',version:'0.8.0'},{capabilities:{tools:{}}});
+  const server=new Server({name:'agent-browser-windows',version:'0.8.1'},{capabilities:{tools:{}}});
   server.setRequestHandler(ListToolsRequestSchema,async()=>({tools:TOOLS}));
   server.setRequestHandler(CallToolRequestSchema,async({params})=>client.call(params.name,params.arguments || {}));
   await server.connect(new StdioServerTransport());

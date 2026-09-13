@@ -1,5 +1,5 @@
 {
-  "version": "0.8.0-alpha.1",
+  "version": "0.8.1-alpha.1",
   "note": "Payload hashes exclude this manifest; ZIP sidecar covers all archive bytes.",
   "files": [
     {
@@ -19,8 +19,8 @@
     },
     {
       "file": "CHANGELOG.md",
-      "bytes": 1063,
-      "sha256": "d4a4004ce8144844ac9fc2b1639affe66493c9edcf371c112015418c35f91e80"
+      "bytes": 1519,
+      "sha256": "8e8feea80ee92a650021812ff974216b0f6c31b15b5f3237a2ecb93b3436b59f"
     },
     {
       "file": "CONTRIBUTING.md",
@@ -39,18 +39,18 @@
     },
     {
       "file": "README.md",
-      "bytes": 8684,
-      "sha256": "11fa248e085bacbde3857727d2cb654d318972584f9a28e70e6c03b192c1e619"
+      "bytes": 10411,
+      "sha256": "053d4eb4d1dced40293aadc1f320541062d8b2e834365347f33c6569863d8e1d"
     },
     {
       "file": "SECURITY.md",
-      "bytes": 2422,
-      "sha256": "2382d47455507b03265544099c98256c8fe7dd5856ba55dca03c73f12c528df8"
+      "bytes": 2923,
+      "sha256": "c1e42c2c3856c9dde14ea3b3e22a95a82aa3dd41f83ef00731db38f191b588e0"
     },
     {
       "file": "SOURCE.json",
-      "bytes": 29968,
-      "sha256": "677822b3cf0446c660538c121f4a08c31d23c204513d5784617e1137c95a037f"
+      "bytes": 35386,
+      "sha256": "3e53985f7d2e34826de105ac539586a741f4f2d85954e5b5def2887a9429bd40"
     },
     {
       "file": "THIRD-PARTY.json",
@@ -89,8 +89,8 @@
     },
     {
       "file": "extension/background.js",
-      "bytes": 137899,
-      "sha256": "2d2f6d845b48506741cb9652cd4f4ba65d28590661369775677135c44a9a89d5"
+      "bytes": 137973,
+      "sha256": "921a59e5f7868594b849fdf81ecfd8d3fe5a335a0d6b9c278295b6c906fe6c5c"
     },
     {
       "file": "extension/brand/avatar.png",
@@ -130,7 +130,7 @@
     {
       "file": "extension/manifest.json",
       "bytes": 1153,
-      "sha256": "824ef1b697c8bb7073b542c52236836d889c16348184030e066d21d6ee592c09"
+      "sha256": "8519d8b72f89ccc72ca21d75c9e5a1e736eb85c82c63cc4bba125c25ba61c4bf"
     },
     {
       "file": "extension/mark.js",
@@ -143,14 +143,19 @@
       "sha256": "0f82838291431a95f7573bac8a07d4775a588ad2751b00bd284b927072e7f8e2"
     },
     {
+      "file": "extension/offscreen-sender.js",
+      "bytes": 533,
+      "sha256": "0bf2203655b3df7325a6883d7b14e7afef7409333483789b500e5b4d25c5eb29"
+    },
+    {
       "file": "extension/offscreen.html",
       "bytes": 221,
       "sha256": "639e6b7648588929950a160023937bfba17ac133318355f23f8cf446fcf12019"
     },
     {
       "file": "extension/offscreen.js",
-      "bytes": 11247,
-      "sha256": "14219e2eae69434abbdd568d9fa7acc422f20fcb933f219f84366f9dbfb009e6"
+      "bytes": 11503,
+      "sha256": "07af6b31187c83c17d5f7e1672bd380812f021b2cff3c7e135af2e48ff71cfc7"
     },
     {
       "file": "extension/overview-channel.js",
@@ -215,12 +220,12 @@
     {
       "file": "package-lock.json",
       "bytes": 44274,
-      "sha256": "9956457ecbadcc7b20ea1627f13d7fb7014f32c90800cc89022522e05aedb6a0"
+      "sha256": "e69ec53293deaed792ccbbb5e11f4c815cc7b82c0d0fe36283c491ad0edd6cf2"
     },
     {
       "file": "package.json",
       "bytes": 616,
-      "sha256": "3ea4631b0aac9803f8e1af73c88a187b52b62f5b3c49945ab3fa524a5ed349a1"
+      "sha256": "76d4c72b8ec70ea957860223080382b67e29d947fe1a1fb57af762d0d6bee351"
     },
     {
       "file": "scripts/browser-smoke.mjs",
@@ -244,8 +249,8 @@
     },
     {
       "file": "skills/agent-browser-windows/SKILL.md",
-      "bytes": 10520,
-      "sha256": "e74ef34806a51279ba3fe24f32e0a88339ea4ce5085b498254f80d11e1bf5999"
+      "bytes": 13344,
+      "sha256": "818c627a8df463c112c64a7095c5c08ff222ec25fec26153ee1773a61d47d8c6"
     },
     {
       "file": "skills/agent-browser-windows/references/opencli.md",
@@ -254,8 +259,8 @@
     },
     {
       "file": "src/arguments.mjs",
-      "bytes": 1375,
-      "sha256": "7f24c48ae511e32f32622883b6a28dbbf6959aabbf380dfd09d2b51a84b8e932"
+      "bytes": 1566,
+      "sha256": "81b016f6a5cc9d949e409515443e96557a0d1b86db7e95fa65d13b69699f68f8"
     },
     {
       "file": "src/browser-download.mjs",
@@ -264,8 +269,8 @@
     },
     {
       "file": "src/browser-launcher.mjs",
-      "bytes": 6891,
-      "sha256": "fd25d8704ea1401390d3695898aa4d0a45fe5aea4dca9d1fc59e9ac34a703407"
+      "bytes": 7327,
+      "sha256": "62c0124a0a53a318f79f6b633c089262436ac4385198b92307f29076114087ff"
     },
     {
       "file": "src/browser-overview.mjs",
@@ -274,8 +279,8 @@
     },
     {
       "file": "src/browser-worker.mjs",
-      "bytes": 4489,
-      "sha256": "0952f81d9e64a9d57b48165c0fc7ea42f6518596c2aedb13324c32c64b3c0ed0"
+      "bytes": 5501,
+      "sha256": "cc820afa94f5ec505e01ed66d5e4324b22a376fdf02ab6d363ba05a9c166f2f4"
     },
     {
       "file": "src/cli-io.mjs",
@@ -284,18 +289,33 @@
     },
     {
       "file": "src/cli.mjs",
-      "bytes": 1115,
-      "sha256": "04614718f93f1c0087840c27fd66fb1e4d8537afd0bae88f1e820ba85434092c"
+      "bytes": 2458,
+      "sha256": "a6ade0f2a4d51c16e668a604823ff63d5286ed39a3370e377ce4092d83895777"
     },
     {
       "file": "src/commands.mjs",
-      "bytes": 4701,
-      "sha256": "bb934c07f58145cc7ef8f8dbcbd81bf59fbcbb604fc91f721b64219d14869891"
+      "bytes": 5403,
+      "sha256": "07750f073c8354ff6bfd7de61f9a7469f800213f9af4c001258e5a2778363f7d"
     },
     {
       "file": "src/control-bridge.mjs",
-      "bytes": 13684,
-      "sha256": "99fa0ed114fb0c97820002cfb6a6a8af4afc6029f1690a3953534d646ccec8f0"
+      "bytes": 14520,
+      "sha256": "0859c5a667c0165983a24ffa9664dda06ee49ac969f8e573d44d4510bf577c6c"
+    },
+    {
+      "file": "src/diagnostic-schema.mjs",
+      "bytes": 3787,
+      "sha256": "6dc67661429d9d33bc7d5e19492bfa2ce7ac7ca08aef6f1f31452d50b5bcabbd"
+    },
+    {
+      "file": "src/diagnostic-store.mjs",
+      "bytes": 6454,
+      "sha256": "88ae789c3ee7c11cfe7b68a3ea39feb689dc06e8ece2ccc77db476ab230d2c85"
+    },
+    {
+      "file": "src/diagnostic-writer.mjs",
+      "bytes": 780,
+      "sha256": "98a3357f734c85d78afc3c27dfdc48a2f82593d5bde546e284b3744657515e88"
     },
     {
       "file": "src/diagnostics.mjs",
@@ -303,9 +323,24 @@
       "sha256": "1c9e14f0bdba598c529cb91e88b237eecfd6ef27be251c8517aac3ace308e9bf"
     },
     {
+      "file": "src/extension-bootstrap.mjs",
+      "bytes": 4225,
+      "sha256": "dab0561c24a40c8da3cdd22f942a5d2368b53e163d21458d99c8f06aa760006c"
+    },
+    {
+      "file": "src/host-bootstrap.ps1",
+      "bytes": 840,
+      "sha256": "dac045ee48328825c0d60938555cef645837123955160ad9c6d1cf090d5a8d99"
+    },
+    {
+      "file": "src/host-startup.mjs",
+      "bytes": 2577,
+      "sha256": "7ee2059ea630ca34f1655a14cde28652659e4f11e16bef6202cf0092caa85d52"
+    },
+    {
       "file": "src/host.mjs",
-      "bytes": 7375,
-      "sha256": "690b611392a05369b2779ea7081cf94ef6dee68cc5b43b5a4af870adf7a88886"
+      "bytes": 11159,
+      "sha256": "e70f0b994805d336d3f70e870b8da44adf82316cd8c771e283a91425158d3824"
     },
     {
       "file": "src/install-policy.mjs",
@@ -314,18 +349,18 @@
     },
     {
       "file": "src/lifecycle.mjs",
-      "bytes": 1496,
-      "sha256": "57f89620177b4dedd7c12c8959d5191d565c4ba7299682f5d2a41ed26aebf390"
+      "bytes": 1697,
+      "sha256": "06c3b8108cbb361287642797bba903f4322bc5603ec647863031ea46a38ba3f9"
     },
     {
       "file": "src/local-control.mjs",
-      "bytes": 1863,
-      "sha256": "5e36afae502f911ba2c5c84dab28650ceb478f94bdb4dd67af6f604aa184ba5b"
+      "bytes": 2464,
+      "sha256": "7e827269b65a0cc408128aac61e53a2dd0ba8a59705791bc824acad71dd343f4"
     },
     {
       "file": "src/mcp.mjs",
       "bytes": 1202,
-      "sha256": "72e2755535a3dcfcc8f7bc9b61356e647cffe5814dd4d980f9dd322f32d2334f"
+      "sha256": "2f5867a183ea14e34ab98e0e5d81fa956bbe7a80bfe8b1d6113699b97b396a90"
     },
     {
       "file": "src/opencli-extension.mjs",
@@ -341,6 +376,16 @@
       "file": "src/owned-workspace.mjs",
       "bytes": 3914,
       "sha256": "f794f46736e25e04ab9b2c0169572f4664832ebc7b9d6e7cc477d8e1ca036ca6"
+    },
+    {
+      "file": "src/prepare-extension.mjs",
+      "bytes": 1841,
+      "sha256": "bb2ef97638aa2d867af894e2bee4f25cd234a51c918e6e8d0506f26e5625a86e"
+    },
+    {
+      "file": "src/runtime-log.mjs",
+      "bytes": 1997,
+      "sha256": "59a92eb3466b50c070bfb02f430b70a606d09a969b7aa58deeba7463e75c749e"
     },
     {
       "file": "src/setup.mjs",
@@ -359,8 +404,8 @@
     },
     {
       "file": "src/tools.mjs",
-      "bytes": 4169,
-      "sha256": "fc8aaa7141db76669e59085c92a12b52e23606ab0646cfc06f6eca28c420ad90"
+      "bytes": 4693,
+      "sha256": "e56cffa4f0dd9045f64575e6d85b65314c1b24705dae2f12364f6dacfba4f722"
     },
     {
       "file": "src/window-control.mjs",
@@ -369,8 +414,8 @@
     },
     {
       "file": "src/worker-rpc.mjs",
-      "bytes": 2251,
-      "sha256": "0c720a0debe7b6b1a2fcb568b3b7bd3d18ec1df706b0b7c05474e3d39c7ccac6"
+      "bytes": 2558,
+      "sha256": "be313405a402e128bb48b0d9c90be22245a2566065fe2300521f5d5091a5ca92"
     },
     {
       "file": "test/cli-io.test.mjs",
@@ -388,6 +433,16 @@
       "sha256": "b349515f73fd22cf208b31f010cda17cdd182a78f3eed8387cd1cdfdfd0a091c"
     },
     {
+      "file": "test/diagnostics.test.mjs",
+      "bytes": 6139,
+      "sha256": "9dd320311ff8cf20d133d4d98168e2b36948a5e41b5e94580c98b53d13533e34"
+    },
+    {
+      "file": "test/extension-bootstrap.test.mjs",
+      "bytes": 3689,
+      "sha256": "9156d377562fed158ab94fa66ae9fbb7be0b3e7c0ed17779cb3b24bc856612b9"
+    },
+    {
       "file": "test/install-policy.test.mjs",
       "bytes": 1732,
       "sha256": "43df111eaee1abab83adfb4bb931f38ae9263431afc525ae01541cfe79d5e2de"
@@ -396,6 +451,16 @@
       "file": "test/lifecycle.test.mjs",
       "bytes": 1155,
       "sha256": "e51675068714a91d12395adfd7494fee29c5fac0f697b5c1cec1ae2b1a7cdb9e"
+    },
+    {
+      "file": "test/local-request.test.mjs",
+      "bytes": 1635,
+      "sha256": "4b45e76295933627ccfdbf53a1453f6a70da16f52b1f23fe22a9f08c5cee0f8c"
+    },
+    {
+      "file": "test/offscreen-sender.test.mjs",
+      "bytes": 888,
+      "sha256": "0b5b52d427ead3642fac6969dcf27783d452f25a1dfa4248f30547ee6551cf39"
     },
     {
       "file": "test/overview-security.test.mjs",
@@ -408,6 +473,11 @@
       "sha256": "86220403f7711fc052965bf53bdf782a2f6d7d1bd3ce65bff70122def64f3061"
     },
     {
+      "file": "test/prepare-extension.test.mjs",
+      "bytes": 2204,
+      "sha256": "7e6500d653c871b328c956cb0bee7d7b57252302b507f9195dedb7fb26929889"
+    },
+    {
       "file": "test/readiness-input.test.mjs",
       "bytes": 5689,
       "sha256": "29111e8372a3b83949badbc677b6962e0be9da23dc43d9c65d8f4d84800c5b60"
@@ -416,6 +486,11 @@
       "file": "test/shared-profile.test.mjs",
       "bytes": 2037,
       "sha256": "a6d0a1c88f453b0a0cb960058879b22fe446fcd185729d9cac981f8e802cb362"
+    },
+    {
+      "file": "test/startup.test.mjs",
+      "bytes": 1850,
+      "sha256": "6a5cabdcc3a8082b7c667ffc726f6b65405b67aedbbd08c3b472919e2cd75d76"
     },
     {
       "file": "test/tool-client.test.mjs",

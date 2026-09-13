@@ -23,7 +23,8 @@ export async function guardedStartup(isClosing,initialize,launch) {
 }
 export async function closeOwnedWorker(w) {
   if(w.exited){if(w.exitCode!==0)throw new Error('CLEANUP_INCOMPLETE');return;}
-  const done=once(w.child,'exit');w.child.send({action:'close'});
-  const [code]=await done;
+  const done=once(w.child,'exit');if(w.child.connected!==false)w.child.send({action:'close'},()=>{});
+  let timer;
+  const [code]=await Promise.race([done,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('BROWSER_CLOSE_UNCONFIRMED')),12000);})]).finally(()=>clearTimeout(timer));
   if(code!==0)throw new Error('CLEANUP_INCOMPLETE');
 }

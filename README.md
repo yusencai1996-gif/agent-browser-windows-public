@@ -1,6 +1,6 @@
 # Agent Browser for Windows
 
-**开发者 Alpha · 0.8.0-alpha.1** — 为 CLI / MCP Agent 提供独立 Chromium、任务标签归属和可查看、可接管的总览。保留原生浏览器界面，默认最小化运行。不是系统默认浏览器，也不是所有网站或 Agent 的兼容保证。
+**开发者 Alpha · 0.8.1-alpha.1** — 为 CLI / MCP Agent 提供独立 Chromium、任务标签归属和可查看、可接管的总览。保留原生浏览器界面，默认最小化运行。不是系统默认浏览器，也不是所有网站或 Agent 的兼容保证。
 
 Windows-native browser workspace for agents. Requires Node.js 26+ and npm. Run the commands below in PowerShell; see [security and data boundaries](SECURITY.md), [contributing](CONTRIBUTING.md) and [license / sources](NOTICE.md). This is a developer alpha, not a signed installer.
 
@@ -16,7 +16,7 @@ Windows-native browser workspace for agents. Requires Node.js 26+ and npm. Run t
 
 ![人类窗口的真实入口](assets/screenshots/human-window.png)
 
-总览可创建用户自己操作的窗口。普通 ABW 任务不能认领这些窗口中的页面。截图来自此公开候选的真实运行，不代表其他机器的人工验收。
+总览可创建用户自己操作的窗口。普通 ABW 任务不能认领这些窗口中的页面。界面截图沿用0.8.0-alpha.1的真实合成运行；本次修订集中于启动与诊断，不代表其他机器的人工验收。
 
 ## 安装与启动
 
@@ -100,6 +100,23 @@ node <absolute-install-directory>/src/cli.mjs mcp --task <task-name>
 配置前先确认本安装离线；之后正常启动。OpenCLI CLI 需自行安装；本包不升级它。使用明确 profile/context，避免回落到日常浏览器；具体命令与版本边界见 [接入说明](skills/agent-browser-windows/references/opencli.md)。两桥没有统一强制锁，必须自建页面并串行操作。ABW 人类窗口保护不构成 OpenCLI 权限隔离。任何公开网站适配器都可能变化。
 
 ## 恢复与升级
+
+### 启动诊断（0.8.1+）
+
+`start`确认就绪后返回单个JSON并退出，`serve`才常驻；`overview`看任务总览，`show`看网页。相同实例和模式的重复start返回`alreadyRunning:true`；不同模式返回`INSTANCE_MODE_MISMATCH`，已关闭的实例返回`INSTANCE_CLOSED`，不会暗中重启或丢任务。Windows内部使用隐藏的短寿命PowerShell启动桥，避免后台宿主继承调用方管道；执行策略只作用于这一已打包脚本进程，不修改全局配置。
+
+错误返回包含`diagnostics.correlationId`。可按它或反馈时间读取有限事件：
+
+```powershell
+.\abw.cmd diagnostics --limit 100
+# 关联查询：将UUID替换成本次JSON中的diagnostics.correlationId
+.\abw.cmd diagnostics --correlation '00000000-0000-4000-8000-000000000000' --limit 80
+.\abw.cmd diagnostics --since '2026-09-13T10:00:00+08:00' --limit 100
+```
+
+诊断日志位于`.local/logs`，默认总量约12MiB（32个独占槽，每槽2×192KiB）。仅包含UTC时间、单调耗时、版本、角色、PID、随机关联ID和固定阶段/错误码；没有URL、域名、标题、正文、原任务名、参数、env、凭据或原始stderr。独立写入线程失败/满盘不阻塞浏览器业务；记录可能不完整。`diagnostics --off/--on`只改变本安装，不删除已有日志，不联网或自动上传。
+
+反馈请分别说明“CLI是否退出”“stdout/stderr是否EOF”“status中浏览器是否在线”，附版本、调用方式和有限关联事件。UTC带Z；上面的+08:00示例是北京时间。不要上传profile/host.json/真实页面或能力文件，也不要把看见宿主当作浏览器就绪。
 
 出现 `OUTCOME_UNKNOWN`、`TASK_PAUSED` 或 `PROFILE_IN_USE`，先查看总览及状态，不删除锁、不盲目重试动作。正常停止前确认没有其他任务或未保存页面。断电、进程崩溃和网站尚未写盘的数据不保证恢复。
 

@@ -3,6 +3,7 @@ import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { TOOLS, validCommand } from './tools.mjs';
 import {safeDetails} from './diagnostics.mjs';
 import {protectedPageUrl} from '../extension/page-policy.js';
+import {logEvent} from './runtime-log.mjs';
 
 const allowed = new Set(TOOLS.map(t=>t.name));
 const fail = (code,details) => Object.assign(new Error(code), { code,...(safeDetails(details)?{details:safeDetails(details)}:{}) });
@@ -37,9 +38,9 @@ export class ControlBridge {
               const old=instance.ws;
               instance.ws=ws;
               // A replacement connection does not prove an in-flight command stopped.
-              if (old && old !== ws) { this.disconnect(instance,old); old.close(4009); }
+              if (old && old !== ws) {logEvent('bridge_state',{correlationId:instance.diagnosticCorrelation,state:'begin',code:'BRIDGE_REPLACED'});this.disconnect(instance,old); old.close(4009); }
               identity={instance};
-              ws.send(JSON.stringify({type:'welcome',bridge:'0.8.0',live:[...this.sessions.keys()]}));
+              ws.send(JSON.stringify({type:'welcome',bridge:'0.8.1',live:[...this.sessions.keys()]}));
             } else if (m.role === 'agent' && !req.headers.origin) {
               const session=this.sessions.get(m.sessionId);
               if (!session || !equal(session.token,m.token) || session.revoked) throw fail('AUTH');
@@ -68,7 +69,7 @@ export class ControlBridge {
           }
         } catch { ws.close(4001); }
       });
-      const deliveryLost=()=>{if(identity?.session)this.instances.get(identity.session.instanceId).uncertain=true;};
+      const deliveryLost=()=>{if(identity?.session){const instance=this.instances.get(identity.session.instanceId);instance.uncertain=true;logEvent('bridge_state',{correlationId:instance.diagnosticCorrelation,state:'error',code:'RESPONSE_DELIVERY_FAILED'});}};
       const send=m=>{
         if(ws.readyState===1)ws.send(JSON.stringify(m),error=>{if(error)deliveryLost();});
         else deliveryLost();
@@ -78,7 +79,7 @@ export class ControlBridge {
         clearTimeout(timeout);
         if (identity?.instance) this.disconnect(identity.instance,ws);
         if (identity?.session?.ws===ws) {
-          if(identity.session.requests>0)this.instances.get(identity.session.instanceId).uncertain=true;
+          if(identity.session.requests>0){const instance=this.instances.get(identity.session.instanceId);instance.uncertain=true;logEvent('bridge_state',{correlationId:instance.diagnosticCorrelation,state:'error',code:'CLIENT_DISCONNECTED'});}
           identity.session.ws=null;
         }
       });
@@ -119,6 +120,7 @@ export class ControlBridge {
     session.paused=false;session.takeover='agent';return {resumed:true};
   }
   disconnect(instance,ws) {
+    logEvent('bridge_state',{correlationId:instance.diagnosticCorrelation,state:[...this.pending.values()].some(p=>p.ws===ws)?'error':'exit',code:'BRIDGE_DISCONNECTED'});
     if (instance.ws===ws) instance.ws=null;
     for (const [key,item] of this.pending) if(item.ws===ws) {
       instance.uncertain=true; this.pending.delete(key); clearTimeout(item.timer); item.reject(fail('OUTCOME_UNKNOWN'));
@@ -198,11 +200,11 @@ export class ControlBridge {
     return new Promise((resolve,reject)=>{
       const ws=instance.ws;
       const timer=setTimeout(()=>{
-        this.pending.delete(message.__k); instance.uncertain=true; reject(fail('OUTCOME_UNKNOWN'));
+        this.pending.delete(message.__k); instance.uncertain=true;logEvent('bridge_state',{correlationId:instance.diagnosticCorrelation,state:'error',code:'BRIDGE_COMMAND_TIMEOUT'});reject(fail('OUTCOME_UNKNOWN'));
       },30000);
       this.pending.set(message.__k,{ws,resolve,reject,timer});
       ws.send(JSON.stringify(message),error=>{
-        if(error && this.pending.delete(message.__k)) {clearTimeout(timer); instance.uncertain=true; reject(fail('OUTCOME_UNKNOWN'));}
+        if(error && this.pending.delete(message.__k)) {clearTimeout(timer); instance.uncertain=true;logEvent('bridge_state',{correlationId:instance.diagnosticCorrelation,state:'error',code:'BRIDGE_TRANSPORT_ERROR'});reject(fail('OUTCOME_UNKNOWN'));}
       });
     });
   }

@@ -2433,6 +2433,7 @@ chrome.runtime.onMessage.addListener((m, _s, sendResponse) => {
     instanceId().then((iid) => sendResponse({
       extId: chrome.runtime.id,
       version: chrome.runtime.getManifest().version,
+      workerEntry: chrome.runtime.getManifest().background.service_worker,
       instanceId: iid,
       token: config.token,
       port: config.port,

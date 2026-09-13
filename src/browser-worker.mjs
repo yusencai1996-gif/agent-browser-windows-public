@@ -7,10 +7,14 @@ import {createOwnedWorkspace} from './owned-workspace.mjs';
 import {guardedStartup} from './lifecycle.mjs';
 import {acquireSharedProfile} from './shared-profile.mjs';
 import {browserOverview} from './browser-overview.mjs';
+import {initDiagnostics,logEvent,finishDiagnostics,correlationId} from './runtime-log.mjs';
+import {validCorrelation} from './diagnostic-schema.mjs';
+initDiagnostics('worker');let startupCorrelation=correlationId;
 let browser,params,closing=false,launching,workspace,shared,cleanupError,cleanupPath;
 const startupController=new AbortController();let startupTimer;
 async function close() {
   if(closing)return;closing=true;
+  logEvent('cleanup',{correlationId:startupCorrelation,state:'begin'});
   clearTimeout(startupTimer);startupController.abort();
   // Exit only this worker if its own Playwright transport cannot settle. No PID kill
   // and no data cleanup in this branch. Playwright's owner-exit hook may force
@@ -26,6 +30,7 @@ async function close() {
   if(workspace && cleanupOk){try{await workspace.cleanup();}catch(e){cleanupOk=false;cleanupError=e.code||e.message;if(e.path)cleanupPath=path.relative(workspace.root,e.path);}}
   if(shared&&cleanupOk)await shared.release();
   clearTimeout(closeDeadline);
+  logEvent('cleanup',{correlationId:startupCorrelation,state:cleanupOk?'ok':'error',...(cleanupOk?{}:{code:cleanupError})});await finishDiagnostics();
   if(process.connected)process.send({event:'cleanup',ok:cleanupOk,error:cleanupError,path:cleanupPath},()=>process.exit(cleanupOk?0:1));else process.exit(cleanupOk?0:1);
 }
 process.on('disconnect',()=>void close());
@@ -40,18 +45,20 @@ process.on('message',async m=>{
   }
   if(m.action!=='launch'||params)return;
   params=m.params;
+  startupCorrelation=validCorrelation(m.correlationId)?m.correlationId:correlationId;logEvent('browser_launch',{correlationId:startupCorrelation,state:'begin'});
   startupTimer=setTimeout(()=>{if(process.connected)process.send({error:'BROWSER_START_TIMEOUT'},()=>{});void close();},25000);
   // Publish the entire initialization promise synchronously before any await.
   launching=guardedStartup(()=>closing,async()=>{
     if(!params.temporary)shared=await acquireSharedProfile(LOCAL);
     workspace=await createOwnedWorkspace(LOCAL);process.env.TEMP=workspace.temp;process.env.TMP=workspace.temp;
-  },()=>workspace.launch(paths=>launchPreparedBrowser({...paths,...(shared?{profile:shared.profile,freshProfile:shared.fresh}:{freshProfile:true}),config:params.config,headless:params.headless,visible:params.visible,signal:startupController.signal,opencliExtension:params.opencliExtension})));
+  },()=>workspace.launch(paths=>launchPreparedBrowser({...paths,...(shared?{profile:shared.profile,freshProfile:shared.fresh}:{freshProfile:true}),config:params.config,headless:params.headless,visible:params.visible,signal:startupController.signal,opencliExtension:params.opencliExtension,diagnosticCorrelation:startupCorrelation})));
   try{
     browser=await launching;
     if(browser)browser.manage=browserOverview(browser);
     clearTimeout(startupTimer);
     if(!browser || closing)return;
+    logEvent('browser_ready',{correlationId:startupCorrelation,state:'ready'});
     browser.context.on('close',()=>void close());
-    if(process.connected)process.send({ready:true,version:browser.version.product,processes:browser.processes,profile:shared?.profile||workspace.profile,profileMode:shared?'shared':'temporary',runtime:workspace.runtime,opencli:browser.opencli},()=>{});
-  }catch(e){if(process.connected)process.send({error:['PROFILE_IN_USE','UNKNOWN_PROFILE','UNSAFE_PROFILE','EXTENSION_LOAD_FAILED','EXTENSION_LOAD_UNCONFIRMED','EXTENSION_ID_UNCONFIRMED','EXTENSION_WORKER_FAILED','EXTENSION_BOOTSTRAP_FAILED','BROWSER_WINDOW_FAILED','BROWSER_BOOTSTRAP_TIMEOUT','BROWSER_START_CANCELLED'].includes(e.message)||/^OPENCLI_[A-Z_]+$/.test(e.message)?e.message:'BROWSER_START_FAILED'},()=>{});void close();}
+    if(process.connected)process.send({ready:true,version:browser.version.product,processes:browser.processes,profile:shared?.profile||workspace.profile,profileMode:shared?'shared':'temporary',runtime:workspace.runtime,opencli:browser.opencli,extension:browser.extensionProof},()=>{});
+  }catch(e){logEvent('browser_ready',{correlationId:startupCorrelation,state:'error',code:e.message});if(process.connected)process.send({error:['PROFILE_IN_USE','UNKNOWN_PROFILE','UNSAFE_PROFILE','UNSAFE_EXTENSION','EXTENSION_LOAD_FAILED','EXTENSION_LOAD_UNCONFIRMED','EXTENSION_ID_UNCONFIRMED','EXTENSION_WORKER_FAILED','EXTENSION_BOOTSTRAP_FAILED','EXTENSION_CONTEXT_TIMEOUT','EXTENSION_CONTEXT_UNAVAILABLE','EXTENSION_WORKER_REPLACED','EXTENSION_WORKER_UNCONFIRMED','EXTENSION_ACTIVATION_TIMEOUT','BROWSER_WINDOW_FAILED','BROWSER_BOOTSTRAP_TIMEOUT','BROWSER_START_CANCELLED'].includes(e.message)||/^OPENCLI_[A-Z_]+$/.test(e.message)?e.message:'BROWSER_START_FAILED'},()=>{});void close();}
 });

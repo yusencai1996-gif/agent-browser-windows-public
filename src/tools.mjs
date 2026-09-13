@@ -24,7 +24,9 @@ const definitions={
   download:['Native download to dedicated instance directory; returns path/bytes. Timeout locks instance; does not imply cancellation.',obj({tabId,url:string,filename:string,timeout:num(1,25000)},['url'])],
   wait:['Wait for selector/text/idle; timeout bounded below bridge limit.',obj({tabId,for:{enum:['selector','text','idle']},value:string,timeout:num(1,25000)},['for'])],
 };
-const outputSchema=obj({ok:bool,untrusted:bool,data:{},error:obj({code:string},['code'])},['ok','untrusted']);
+const errorDetails=obj({tabId:{type:'integer',minimum:1},replacementTabId:{type:'integer',minimum:1},created:bool,stage:{enum:['navigation','postcheck','lifecycle']},navigation:{enum:['closed','replaced','timeout','failed','restricted','challenge']}});
+const diagnosticMeta=obj({correlationId:string,state:{enum:['pending','written','disabled','unavailable','not-started']},pending:{type:'integer',minimum:0,maximum:32},dropped:{type:'integer',minimum:0}},['correlationId']);
+const outputSchema=obj({ok:bool,untrusted:bool,data:{},error:obj({code:string,details:errorDetails},['code']),diagnostics:diagnosticMeta},['ok','untrusted']);
 const ajv=new Ajv({strict:false,allErrors:false});
 export const TOOLS=Object.entries(definitions).map(([name,[description,inputSchema]])=>({name,description,inputSchema,outputSchema}));
 const validators=new Map(TOOLS.map(t=>[t.name,ajv.compile(t.inputSchema)]));

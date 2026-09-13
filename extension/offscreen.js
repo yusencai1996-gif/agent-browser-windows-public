@@ -20,12 +20,14 @@
 // 所以握手要用的身份（扩展 id、版本号）一律问 SW 要，连接状态也回报给 SW 去存。
 
 // WP2 derivative: never probe another browser bridge.
+import {identityWorkerUrl,trustedWorkerSender} from './offscreen-sender.js';
 const PING_MS = 15000;          // 留足余量：30 秒空闲线，20 秒太贴边
 const PROBE_MS = 1500;
 const MAX_BACKOFF = 15000;
 const DEAD_MS = 45000;          // 三个心跳周期一声不吭 = 这条连接已经死了
 
 let ws = null;
+let workerSenderUrl = null; // Supplied by the verified SW identity reply; no getManifest API here.
 let pingTimer = null;
 let retryTimer = null;
 let retryDelay = 0;
@@ -79,7 +81,8 @@ function probe(port, hello) {
 // 桥会记下一个错的扩展版本，而版本比对正是「改了代码忘记重载」的唯一探针。
 async function askIdentity() {
   const r = await chrome.runtime.sendMessage({ __hcBridge: 'identity' }).catch(() => null);
-  return r?.extId && r?.token ? r : null;
+  const url=identityWorkerUrl(r,chrome.runtime.id,value=>chrome.runtime.getURL(value));if(!url)return null;workerSenderUrl=url;
+  return r?.token ? r : null;
 }
 
 async function connect() {
@@ -191,7 +194,7 @@ function stopPing() {
 const setStatus = (connected) => post({ __hcBridge: 'status', connected });
 
 chrome.runtime.onMessage.addListener((m, _s, sendResponse) => {
-  if(_s.id!==chrome.runtime.id||_s.tab||(_s.url&&_s.url!==chrome.runtime.getURL('background.js')))return false;
+  if(!trustedWorkerSender(_s,chrome.runtime.id,workerSenderUrl))return false;
   if (m?.__hcBridge === 'out') {                    // SW 要往桥上发一条（res / event）
     if (ws?.readyState === 1) ws.send(JSON.stringify(m.msg));
     sendResponse({ sent: ws?.readyState === 1 });

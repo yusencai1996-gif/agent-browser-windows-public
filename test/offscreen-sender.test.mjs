@@ -1,0 +1,4 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {identityWorkerUrl,trustedWorkerSender} from '../extension/offscreen-sender.js';
+test('offscreen derives only the manifest-entry identity without requiring getManifest',()=>{const id='a'.repeat(32),getUrl=p=>'chrome-extension://'+id+'/'+p,entry='background.'+'b'.repeat(24)+'.js',url=identityWorkerUrl({extId:id,workerEntry:entry},id,getUrl);assert.equal(url,getUrl(entry));assert.equal(trustedWorkerSender({id,url},id,url),true);for(const bad of [{id,url:getUrl('overview.html')},{id,url,tab:{id:1}},{id:'foreign',url}])assert.equal(trustedWorkerSender(bad,id,url),false);for(const p of ['../background.js','overview.html','background.js?x=1','https://example.invalid/x'])assert.equal(identityWorkerUrl({extId:id,workerEntry:p},id,getUrl),null);assert.equal(trustedWorkerSender({id,url},id,null),false);});
