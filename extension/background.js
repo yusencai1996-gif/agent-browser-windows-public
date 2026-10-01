@@ -709,6 +709,8 @@ async function syncGroup(tabId, owners) {
   try {
     if (!chrome.tabGroups) return;   // 旧 Chrome 没有这个 API
     const tab = await chrome.tabs.get(tabId);
+    if (management.isHumanWindow(tab.windowId) || protectedPageUrl(tab.url)) return;
+    if ((await chrome.windows.get(tab.windowId)).type !== 'normal') return;
     const all = await chrome.storage.local.get(null);
     const ours = new Map(Object.entries(all)
       .filter(([k]) => k.startsWith('agentGroup:'))
@@ -719,8 +721,14 @@ async function syncGroup(tabId, owners) {
       if (tab.groupId === -1) return;
       for (const [sid, gid] of ours) {
         if (gid !== tab.groupId) continue;
+        if ((await ownersOfTab(tabId)).length) return;
+        if ((await chrome.windows.get(tab.windowId)).type !== 'normal') return;
         const g = await chrome.tabGroups.get(gid).catch(() => null);
-        if (g && groupTitleOk(g.title, sid)) await chrome.tabs.ungroup(tabId);
+        if (!g || g.windowId !== tab.windowId || !groupTitleOk(g.title, sid)) return;
+        const current = await chrome.tabs.get(tabId);
+        if (current.windowId !== tab.windowId || current.groupId !== tab.groupId ||
+            management.isHumanWindow(current.windowId) || protectedPageUrl(current.url)) return;
+        await chrome.tabs.ungroup(tabId);
         return;
       }
       return;
@@ -735,15 +743,33 @@ async function syncGroup(tabId, owners) {
     }
     // 旧组还在、还像我们的、且在同一个窗口 → 归队；否则新建。
     // 跨窗口不归队：group({groupId}) 会把标签页搬进另一个窗口，比不显著更糟。
-    let gid = null;
+    let gid = null, destinationTitle;
     if (stored !== undefined) {
       const g = await chrome.tabGroups.get(stored).catch(() => null);
-      if (g && g.windowId === tab.windowId && groupTitleOk(g.title, o.sid)) gid = stored;
+      if (g && g.windowId === tab.windowId && groupTitleOk(g.title, o.sid)) {
+        gid = stored;
+        destinationTitle = g.title;
+      }
     }
+    // Decoration may lag task shutdown; never act on a stale owner snapshot.
+    if (!(await ownersOfTab(tabId)).some(owner => owner.sid === o.sid && owner.group === o.group)) return;
+    if ((await chrome.windows.get(tab.windowId)).type !== 'normal') return;
+    if (gid !== null) {
+      const destination = await chrome.tabGroups.get(gid).catch(() => null);
+      if (!destination || destination.windowId !== tab.windowId ||
+          destination.title !== destinationTitle || !groupTitleOk(destination.title, o.sid)) return;
+    }
+    // Read the tab last, after slow storage/group lookups. A user drag or regroup
+    // cancels this optional decoration. Chrome APIs are not an atomic transaction.
+    const current = await chrome.tabs.get(tabId);
+    if (current.windowId !== tab.windowId || current.groupId !== tab.groupId ||
+        management.isHumanWindow(current.windowId) || protectedPageUrl(current.url)) return;
     if (gid !== null) {
       await chrome.tabs.group({ tabIds: tabId, groupId: gid });
     } else {
-      gid = await chrome.tabs.group({ tabIds: tabId });
+      // The API otherwise defaults to the current window and can move a
+      // background Agent tab into a human/unassigned window.
+      gid = await chrome.tabs.group({ tabIds: tabId, createProperties: { windowId: tab.windowId } });
       await chrome.tabGroups.update(gid, { title: GROUP_TITLE, color: o.group });
       await chrome.storage.local.set({ [groupKey(o.sid)]: gid });
     }

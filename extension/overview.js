@@ -63,7 +63,7 @@
       const data=await request('snapshot');if(version!==revision||!state.visible)return;
       if(state.generation!==data.generation){images.clear();state.generation=data.generation;state.selected=null;state.tab=null;}
       state.rows=data.tasks;state.external=data.externalBridge;
-      if(!selected()){state.selected=(state.rows.find(r=>!r.human&&!r.revoked&&r.tabs.length)||state.rows.find(r=>!r.human&&!r.revoked)||state.rows[0])?.id||null;state.tab=null;}
+      if(!selected()){state.selected=(state.rows.find(r=>!r.human&&!r.revoked&&r.tabs.length)||state.rows.find(r=>!r.human&&!r.revoked))?.id||null;state.tab=null;}
       if(!selectedTab())state.tab=selected()?.current||selected()?.tabs[0]?.id;
       render();const tab=selectedTab();
       if(tab&&!state.busy){const target=tab.id,key=imageKey(tab);const result=await request('preview',{tabId:target});if(version===revision&&state.visible&&selectedTab()?.id===target&&imageKey(selectedTab())===key&&(!result.documentKey||result.documentKey===tab.documentKey)){images.set(key,result);while(images.size>8)images.delete(images.keys().next().value);paint();}}
@@ -79,7 +79,7 @@
     });
     local.onDisconnect.addListener(()=>{if(port!==local)return;port=null;state.visible=false;revision++;clearTimeout(timer);for(const p of pending.values()){clearTimeout(p.deadline);p.reject(new Error('连接已断开'));}pending.clear();$('connection').textContent='连接已断开';});
   }
-  async function act(action,extra={}){if(state.busy)return;state.busy=true;revision++;clearTimeout(timer);if(action==='takeover'&&selected())selected().state='pending';render();schedule();try{const result=await request(action,extra);notice(action==='takeover'?(result.confirmed?'ABW已暂停，网页自身活动不会回滚。':'停止未确认，请勿认为在途操作已结束。'):action==='return'?'已明确交还此任务。':'操作已完成。');if(action==='new-human'){state.selected='human:'+result.windowId;state.tab=result.tabId;}}catch(e){notice(e.message==='REVOKED'?'任务已结束，不会重新启动。':e.message);}finally{state.busy=false;render();if(state.visible)schedule(0);}}
+  async function act(action,extra={}){if(state.busy)return;state.busy=true;revision++;clearTimeout(timer);if(action==='takeover'&&selected())selected().state='pending';render();schedule();try{const result=await request(action,extra);notice(action==='takeover'?(result.confirmed?'ABW已暂停，网页自身活动不会回滚。':'停止未确认，请勿认为在途操作已结束。'):action==='return'?'已明确交还此任务。':'操作已完成。');}catch(e){notice(e.message==='REVOKED'?'任务已结束，不会重新启动。':e.message);}finally{state.busy=false;render();if(state.visible)schedule(0);}}
   function confirm(title,description,action){$('confirm-title').textContent=title;$('confirm-text').textContent=description;confirmAction=action;$('confirm').showModal();}
   $('tasks').addEventListener('click',e=>{
     if(!e.isTrusted)return;const b=e.target.closest('button');if(!b)return;

@@ -1,6 +1,6 @@
 # Agent Browser for Windows
 
-**开发者 Alpha · 0.9.0-alpha.1 候选** — C 总览使用独立 popup 外壳，左侧按 Agent/任务垂直列出网页，右侧观察选中页面的近期截图；实际网页留在另一个原生后台工作窗。任务级接管后可明确进入原生网页操作。不是系统默认浏览器，也不是所有网站或 Agent 的兼容保证。
+**开发者 Alpha · 0.9.1-alpha.1** — C 总览使用独立 popup 外壳，左侧按 Agent/任务垂直列出网页，右侧观察选中页面的近期截图；实际网页留在另一个原生后台工作窗。首次/新代只默认观察活动任务，人工或未分配页不被自动选中；创建人工窗口也不会自动开始观察。不是系统默认浏览器，也不是所有网站或 Agent 的兼容保证。
 
 Windows-native browser workspace for agents. Requires Node.js 26+ and npm. Run the commands below in PowerShell; see [security and data boundaries](SECURITY.md), [contributing](CONTRIBUTING.md) and [license / sources](NOTICE.md). This is a developer alpha, not a signed installer.
 
@@ -86,7 +86,7 @@ node <absolute-install-directory>/src/cli.mjs mcp --task <task-name>
 
 ## 总览、接管与共享登录
 
-总览只显示真实可观察任务，不推断 Agent 品牌或思考进度。预览按精确标签获取，只保存在内存，管理页可见且聚焦时刷新；最小化、离开或关闭时停止刷新。繁忙时可能显示缓存。点击“查看”只聚焦页面，不转移所有权。
+总览只显示真实可观察任务，不推断 Agent 品牌或思考进度。首次/新代默认只选择活动任务；空任务不抓图，没有活动任务不回退观察人类/未分配/结束行。用户明确选择人工页后才观察，同代reconnect保留既有明确选择。预览按精确标签获取，只保存在内存，管理页可见且聚焦时刷新；隐藏时停止。繁忙/失败可能显示缓存或暂停新预览。点击“查看”只聚焦页面，不转移所有权。
 
 预览链条共用有限期限。定位/截图/自身会话清理未结算时暂停新预览并明确提示，避免重复attach累积；普通任务指令仍可继续。只有原操作及自身清理实际完成才恢复，永久挂起需用户安排正常重启。它不承诺强制取消底层请求，也不detach其他调试器。
 

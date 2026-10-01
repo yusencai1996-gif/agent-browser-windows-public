@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.1-alpha.1
+
+- Restrict first-load and generation-reset default observation to active Agent tasks. Human, unassigned and ended rows remain visible but are not an automatic fallback; explicit user selection and same-generation reconnect remain supported.
+- Creating a human window does not select it for observation. Auxiliary tab groups stay in the tab's work window; changes of window, group or ownership detected during lookup cancel decoration instead of reversing user actions.
+- Retain 0.9.0's overview/window/preview boundaries. 0.9.0 source reached public CI but was not tagged or released before this correction.
+
 ## 0.9.0-alpha.1 (candidate)
 
 - Isolate the management overview in a popup window. Fresh startup binds its initial blank target before reuse; existing unknown pages remain preserved in background windows.
