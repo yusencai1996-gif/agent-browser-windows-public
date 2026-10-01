@@ -92,9 +92,11 @@ export class ControlBridge {
     this.instances.set(instanceId,value);
     return {port:this.port,instanceId,token:value.token};
   }
-  createSession(sessionId,instanceId) {
+  createSession(sessionId,instanceId,{agentName,displayName}={}) {
     if (!sessionId || this.sessions.has(sessionId) || !this.instances.has(instanceId)) throw fail('INVALID_SESSION');
-    const value={id:sessionId,instanceId,token:token(),revoked:false,current:null,ws:null,paused:false,takeover:'agent'};
+    const label=(value,max)=>{if(value===undefined)return null;if(typeof value!=='string'||!value.trim()||value.length>max||/[\u0000-\u001f\u007f]/.test(value))throw fail('INVALID_DISPLAY_NAME');return value.trim();};
+    // These are declared display labels only; session ID/capability still own access.
+    const value={id:sessionId,instanceId,agentName:label(agentName,40),displayName:label(displayName,80),token:token(),revoked:false,current:null,ws:null,paused:false,takeover:'agent'};
     this.sessions.set(sessionId,value);
     return {port:this.port,sessionId,token:value.token};
   }

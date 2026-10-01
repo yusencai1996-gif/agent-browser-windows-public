@@ -10,10 +10,10 @@ import {closeOwnedWorker,withinStartupDeadline} from './lifecycle.mjs';
 import {attachWorkerRpc,callWindow,callOverview,waitForWorkerReady} from './worker-rpc.mjs';
 import {OverviewController} from './overview-controller.mjs';
 import {configuredOpencli,inspectOpencliExtension} from './opencli-extension.mjs';
-import {initDiagnostics,logEvent,finishDiagnostics} from './runtime-log.mjs';
+import {initDiagnostics,logEvent,finishDiagnostics,correlationId} from './runtime-log.mjs';
 initDiagnostics('host');
 const workers=new Map();let stopping=false,bridge,serial=Promise.resolve();
-const control=randomBytes(32).toString('hex'),generation=randomUUID();
+const control=randomBytes(32).toString('hex'),generation=randomUUID(),startupId=process.argv.includes('--managed-start')?correlationId:null;
 const validName=s=>typeof s==='string'&&/^[a-zA-Z0-9_-]{1,48}$/.test(s);
 let released=!process.connected&&!process.argv.includes('--managed-start'),cancelled=false,wroteState=false;
 // Before the CLI acknowledges readiness this host may not launch a browser.
@@ -21,11 +21,15 @@ const initializationTimer=setTimeout(()=>void abortInitialization(),12000);initi
 process.on('disconnect',()=>{if(!released)void abortInitialization();});
 process.on('message',m=>{
   if(m?.action==='startup-cancel'&&!released)return void abortInitialization();
-  if(m?.action==='startup-release'&&!cancelled&&wroteState){released=true;clearTimeout(initializationTimer);logEvent('host_release',{state:'ready'});process.send?.({released:true},()=>{});}
+  if(m?.action==='startup-release'&&m.startupId===startupId&&!cancelled&&wroteState){released=true;clearTimeout(initializationTimer);logEvent('host_release',{state:'ready'});process.send?.({released:true},()=>{});}
 });
 const server=http.createServer(async(req,res)=>{
   const reply=(ok,data)=>{res.setHeader('content-type','application/json');res.end(JSON.stringify(ok?{ok,data}:{ok,error:data}));};
-  if(req.headers.origin || req.headers.authorization!==`Bearer ${control}`){res.statusCode=403;return reply(false,'AUTH');}
+  if(req.headers.origin){res.statusCode=403;return reply(false,'AUTH');}
+  // Binding precedes publication to avoid replacing a live owner's state.
+  // Before the new token is published, no action reaches the dispatcher.
+  if(!wroteState){res.statusCode=503;return reply(false,'HOST_STARTING');}
+  if(req.headers.authorization!==`Bearer ${control}`){res.statusCode=403;return reply(false,'AUTH');}
   let body='';for await(const chunk of req){body+=chunk;if(body.length>8192){req.destroy();return;}}
   let args;try{args=JSON.parse(body);}catch{return reply(false,'INVALID_ARGUMENT');}
   const record=(phase,extra)=>{if(args.action!=='health')logEvent(phase,{action:args.action,correlationId:args.correlationId,...extra});};record('request_begin',{state:'begin'});
@@ -57,9 +61,11 @@ async function abortInitialization(force=false){
 const signalStop=()=>void stop().then(()=>server.close(()=>process.exit(0))).catch(()=>console.error('CLEANUP_INCOMPLETE'));
 process.on('SIGINT',signalStop);process.on('SIGTERM',signalStop);
 async function dispatch(p) {
-  if(p.action==='health')return {hostReady:released&&!cancelled&&!stopping,bootstrapReady:wroteState&&!cancelled&&!stopping};
+  if(p.action==='health')return {hostReady:released&&!cancelled&&!stopping,bootstrapReady:wroteState&&!cancelled&&!stopping,startupId,pid:process.pid};
   if(p.action==='startup-release'){
-    if(cancelled||!wroteState||stopping)throw new Error('HOST_STARTING');released=true;clearTimeout(initializationTimer);logEvent('host_release',{correlationId:p.correlationId,state:'ready'});return {hostReady:true};
+    if(cancelled||!wroteState||stopping)throw new Error('HOST_STARTING');
+    if(!startupId||p.startupId!==startupId)throw new Error('HOST_START_PROTOCOL');
+    released=true;clearTimeout(initializationTimer);logEvent('host_release',{correlationId:p.correlationId,state:'ready'});return {hostReady:true};
   }
   if(!released)throw new Error('HOST_STARTING');
   if(p.action==='status')return {generation,stopping,overviewCaptures:overview.captures,instances:await Promise.all([...workers].map(async([id,w])=>({id,online:bridge.instances.get(id)?.ws?.readyState===1,headless:w.headless,profileMode:w.profileMode,version:w.version,processes:w.processes,profile:w.profile,runtime:w.runtime,opencli:w.opencli,cleanup:w.cleanup,window:await callWindow(w,'status').catch(e=>({mode:'unknown',error:e.message,windows:[]}))}))),tasks:[...bridge.sessions.values()].map(s=>({name:s.id,instance:s.instanceId,revoked:s.revoked,paused:s.paused,takeover:s.takeover,tabId:s.current,connected:s.ws?.readyState===1,requests:s.requests||0,executing:!!s.executing,uncertain:bridge.instances.get(s.instanceId).uncertain}))};
@@ -69,6 +75,7 @@ async function dispatch(p) {
   if(['show','minimize'].includes(p.action)){
     const w=workers.get(p.instance);if(!w)throw new Error('INVALID_INSTANCE');
     if(p.windowId!==undefined && !Number.isSafeInteger(p.windowId))throw new Error('INVALID_WINDOW_ID');
+    if(p.action==='show'&&p.windowId===undefined){const management=await callOverview(w,'open');return {instance:p.instance,management,...await callWindow(w,'status')};}
     return {instance:p.instance,...await callWindow(w,p.action,p.windowId)};
   }
   if(p.action==='browser') {
@@ -82,6 +89,7 @@ async function dispatch(p) {
       if(existing.starting)throw new Error('INSTANCE_STARTING');
       if(existing.headless!==!!p.headless||existing.profileMode!==(p.temporary?'temporary':'shared')||existing.opencliPath!==opencliExtension)throw new Error('INSTANCE_MODE_MISMATCH');
       if(bridge.instances.get(p.name)?.ws?.readyState!==1)throw new Error('INSTANCE_OFFLINE');
+      if(!existing.headless)await callOverview(existing,p.visible?'open':'ensure');
       return {instance:p.name,alreadyRunning:true,headless:existing.headless,profileMode:existing.profileMode,version:existing.version,extension:existing.extension,window:await callWindow(existing,'status')};
     }
     const config=bridge.registerInstance(p.name);
@@ -108,7 +116,7 @@ async function dispatch(p) {
   if(!validName(p.name))throw new Error('INVALID_TASK');
   if(p.action==='task'){
     const instance=p.instance||'main';if(!workers.has(instance)||workers.get(instance).exited)throw new Error('INSTANCE_OFFLINE');
-    bridge.createSession(p.name,instance);return {task:p.name,instance};
+    bridge.createSession(p.name,instance,{agentName:p.agentName,displayName:p.displayName});return {task:p.name,instance};
   }
   const s=bridge.sessions.get(p.name);if(!s)throw new Error('INVALID_TASK');
   if(p.action==='grant') {if(s.revoked)throw new Error('REVOKED');if(s.paused)throw new Error('TASK_PAUSED');return {port:bridge.port,sessionId:s.id,token:s.token};}

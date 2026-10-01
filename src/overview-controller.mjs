@@ -26,7 +26,7 @@ export class OverviewController {
       const tasks=[...this.bridge.sessions.values()].filter(s=>s.instanceId===instance.id).map(s=>{
         const tabs=meta.tabs.filter(t=>this.bridge.owners.get(`${instance.id}:${t.id}`)===s.id);
         const state=s.revoked?'ended':s.paused?(instance.uncertain?'unconfirmed':s.takeover):s.executing?'running':'waiting';
-        return {id:s.id,name:s.id,state,revoked:s.revoked,current:tabs.some(t=>t.id===s.current)?s.current:null,tabs};
+        return {id:s.id,name:s.displayName||s.id,agentName:s.agentName,state,revoked:s.revoked,current:tabs.some(t=>t.id===s.current)?s.current:null,tabs};
       });
       const humans=[];for(const tab of meta.tabs)if(!this.bridge.owners.has(`${instance.id}:${tab.id}`)){let group=humans.find(g=>g.windowId===tab.windowId);if(!group){group={id:'human:'+tab.windowId,windowId:tab.windowId,name:meta.humanWindows.includes(tab.windowId)?'我的窗口':'未分配窗口',state:'human',human:true,closable:meta.humanWindows.includes(tab.windowId),tabs:[],current:tab.id};humans.push(group);}group.tabs.push(tab);if(tab.active)group.current=tab.id;}
       for(const [key,value] of this.cache)if(!meta.tabs.some(t=>t.id===value.tabId&&t.documentKey===value.documentKey))this.cache.delete(key);
@@ -40,7 +40,7 @@ export class OverviewController {
     const job=instance.queue.then(async()=>{
       if(!await this.rpc(worker,'visible',{pageId:message.pageId}))return {error:'总览已隐藏'};
       this.captures++;
-      try{const result=await this.rpc(worker,'capture',{pageId:message.pageId,tabId:tab.id,documentKey:tab.documentKey});const value={...result,tabId:tab.id,updatedAt:Date.now()};this.cache.set(key,value);while(this.cache.size>8)this.cache.delete(this.cache.keys().next().value);return value;}catch{return previous?{...previous,stale:true,error:'预览暂不可用'}:{error:'预览暂不可用'};}
+      try{const result=await this.rpc(worker,'capture',{pageId:message.pageId,tabId:tab.id,documentKey:tab.documentKey});const value={...result,tabId:tab.id,updatedAt:Date.now()};this.cache.set(key,value);while(this.cache.size>8)this.cache.delete(this.cache.keys().next().value);return value;}catch(e){const error=e.message==='PREVIEW_CLEANUP_UNCONFIRMED'?'预览会话清理未确认，已暂停新预览':e.message==='PREVIEW_PENDING'?'预览通道仍有待决操作，已暂停新预览':'预览暂不可用';return previous?{...previous,stale:true,error}:{error};}
     });
     const done=job.finally(()=>{instance.previewPending=false;});instance.queue=done.catch(()=>{});return done;
   }

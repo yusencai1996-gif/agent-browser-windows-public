@@ -29,6 +29,14 @@ export async function launchPreparedBrowser({config,profile,runtime,downloads,he
     if(freshProfile){await fs.mkdir(path.join(profile,'Default'));await fs.writeFile(path.join(profile,'Default','Preferences'),JSON.stringify({download:{default_directory:downloads,prompt_for_download:false}}));}
     // A fixed headed viewport resizes/restores the native window when a tab appears.
     mark('chromium_launch');context=await chromium.launchPersistentContext(profile,{timeout:15000,channel:'chromium',headless,chromiumSandbox:true,ignoreDefaultArgs:['--disable-extensions'],downloadsPath:downloads,acceptDownloads:true,viewport:headless?{width:1200,height:800}:null,args:['--window-size=1200,900','--enable-unsafe-extension-debugging',...(!headless&&!visible?['--start-minimized']:[]),`--disable-extensions-except=${[extension,...(third?[third.path]:[])].join(',')}`]});mark('chromium_launch','ok');
+    const initialPages=context.pages();let initialBlankTargetId;
+    if(freshProfile&&initialPages.length===1&&initialPages[0].url()==='about:blank'){
+      // Bind to the exact page born with this fresh profile, not a later tab
+      // that merely happens to have the same about:blank URL.
+      const session=await step(()=>context.newCDPSession(initialPages[0]));
+      try{initialBlankTargetId=(await step(()=>session.send('Target.getTargetInfo'))).targetInfo.targetId;}
+      finally{await session.detach();}
+    }
     const cdp=await step(()=>context.browser().newBrowserCDPSession());
     const processes=await step(()=>cdp.send('SystemInfo.getProcessInfo')),version=await step(()=>cdp.send('Browser.getVersion'));
     ownedPid=processes.processInfo.find(p=>p.type==='browser')?.id;
@@ -65,8 +73,8 @@ export async function launchPreparedBrowser({config,profile,runtime,downloads,he
     const windows=windowController(worker,{headless});
     failureCode='BROWSER_WINDOW_FAILED';
     mark('window_ready');
-    if(!headless){const current=await step(()=>windows.status());for(const w of current.windows)await step(()=>windows.set(visible&&w.id===current.windows[0].id?'show':'minimize',w.id));}
+    if(!headless){const current=await step(()=>windows.status());for(const w of current.windows)await step(()=>windows.set('minimize',w.id));}
     if(!ownedPid)throw new Error('BROWSER_ID_UNCONFIRMED');
-    return {context,worker,extensionProof,opencliWorker,opencli,windows,downloads,version,processes:processes.processInfo,close:async()=>{await context.close();await waitForOwnedProcessExit(processes.processInfo.map(p=>p.id));await fs.unlink(path.join(extension,'config.js')).catch(e=>{if(e.code!=='ENOENT')throw e;});}};
+    return {context,worker,extensionProof,opencliWorker,opencli,windows,downloads,version,processes:processes.processInfo,initialBlankTargetId,close:async()=>{await context.close();await waitForOwnedProcessExit(processes.processInfo.map(p=>p.id));await fs.unlink(path.join(extension,'config.js')).catch(e=>{if(e.code!=='ENOENT')throw e;});}};
   }catch(e){mark(phase,'error',/^[A-Z_]+$/.test(e.message)?e.message:failureCode);if(context){try{await context.close();if(ownedPid)await waitForOwnedProcessExit(ownedPid);}catch{throw Object.assign(new Error('BROWSER_CLOSE_UNCONFIRMED'),{browserMayBeActive:true});}}await fs.unlink(path.join(extension,'config.js')).catch(()=>{});throw new Error(/^[A-Z_]+$/.test(e.message)?e.message:failureCode);}
 }

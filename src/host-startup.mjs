@@ -5,9 +5,9 @@ import {correlationId} from './runtime-log.mjs';
 
 // ShellExecute breaks inherited PowerShell pipe handles. PID is diagnostics only;
 // readiness/ownership uses the ACL-protected local channel, never a PID lookup.
-export function launchManagedHost({timeoutMs=5000}={}) {
+export function launchManagedHost({timeoutMs=5000,startupId=correlationId}={}) {
  return new Promise((resolve,reject)=>{
-  const child=spawn('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(ROOT,'src/host-bootstrap.ps1'),'-NodePath',process.execPath,'-HostFile',path.join(ROOT,'src/host.mjs'),'-CorrelationId',correlationId],{windowsHide:true,stdio:['ignore','pipe','pipe']});
+  const child=spawn('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(ROOT,'src/host-bootstrap.ps1'),'-NodePath',process.execPath,'-HostFile',path.join(ROOT,'src/host.mjs'),'-CorrelationId',startupId],{windowsHide:true,stdio:['ignore','pipe','pipe']});
   let text='',done=false;
   const finish=(error,pid)=>{if(done)return;done=true;clearTimeout(timer);child.stdout.destroy();child.stderr.destroy();child.unref();error?reject(error):resolve(pid);};
   const timer=setTimeout(()=>finish(new Error('HOST_LAUNCHER_TIMEOUT')),timeoutMs);
@@ -17,17 +17,25 @@ export function launchManagedHost({timeoutMs=5000}={}) {
  });
 }
 
-export async function ensureHost({probe=()=>request('health',{}, {timeoutMs:1500}),release=()=>request('startup-release',{}, {timeoutMs:1500}),launch=()=>launchManagedHost(),timeoutMs=10000,event=()=>{}}={}) {
+export async function ensureHost({probe=()=>request('health',{}, {timeoutMs:1500}),release=id=>request('startup-release',{startupId:id}, {timeoutMs:1500}),launch=id=>launchManagedHost({startupId:id}),startupId=correlationId,timeoutMs=10000,event=()=>{}}={}) {
  let absent=false;
  try{const state=await probe();if(state?.hostReady===true)return false;}catch(e){if(['INVALID_TASK','INVALID_ACTION'].includes(e.message))throw new Error('HOST_VERSION_MISMATCH');if(e.message!=='HOST_OFFLINE')throw e;absent=true;}
- if(absent){const childPid=await launch();event('host_spawn',{childPid});}
+ let childPid;if(absent){childPid=await launch(startupId);event('host_spawn',{childPid});}
  const deadline=performance.now()+timeoutMs;let acknowledged=false;
  while(performance.now()<deadline){
   try{
    const state=await probe();
+   if(absent&&(state?.startupId!==startupId||state?.pid!==childPid))throw new Error('HOST_START_PROTOCOL');
    if(state?.hostReady===true){event('host_release');return absent;}
-   if(state?.bootstrapReady===true&&!acknowledged){event('host_ready');await release();acknowledged=true;}
-  }catch(e){if(!['HOST_OFFLINE','HOST_STARTING'].includes(e.message))throw e;}
+   // Another caller may be starting an existing host; only our own matching
+   // launch can release it. The other caller's release will make it ready.
+   if(absent&&state?.bootstrapReady===true&&!acknowledged){event('host_ready');await release(startupId);acknowledged=true;}
+  }catch(e){
+   // An old state file can race this client's own new pipe. AUTH is never
+   // accepted as readiness: retry only before releasing our bounded launch,
+   // then re-read the file and fully authenticate on the next health probe.
+   if(e.message==='AUTH'&&absent&&!acknowledged){}else if(!['HOST_OFFLINE','HOST_STARTING'].includes(e.message))throw e;
+  }
   await new Promise(r=>setTimeout(r,40));
  }
  // An unreleased host self-aborts on its bounded initialization lease. No PID kill.

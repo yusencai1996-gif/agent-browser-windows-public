@@ -5,7 +5,7 @@ import {ensureHost} from '../src/host-startup.mjs';
 import {waitForWorkerReady} from '../src/worker-rpc.mjs';
 test('existing ready host is reused; bootstrap-ready is not browser or released readiness',async()=>{
  let launches=0,releases=0,phase=0;assert.equal(await ensureHost({probe:async()=>({hostReady:true}),launch:async()=>launches++}),false);assert.equal(launches,0);
- assert.equal(await ensureHost({probe:async()=>{if(!phase++)throw new Error('HOST_OFFLINE');return {hostReady:releases>0,bootstrapReady:true};},release:async()=>releases++,launch:async()=>{launches++;return 123;}}),true);assert.equal(launches,1);assert.equal(releases,1);
+ const id='00000000-0000-4000-8000-000000000001';assert.equal(await ensureHost({startupId:id,probe:async()=>{if(!phase++)throw new Error('HOST_OFFLINE');return {hostReady:releases>0,bootstrapReady:true,startupId:id,pid:123};},release:async()=>releases++,launch:async()=>{launches++;return 123;}}),true);assert.equal(launches,1);assert.equal(releases,1);
 });
 test('absent/silent daemon and launcher errors return bounded explicit failures',async()=>{
  await assert.rejects(ensureHost({probe:async()=>{throw new Error('HOST_OFFLINE');},launch:async()=>123,timeoutMs:15}),/HOST_START_TIMEOUT/);

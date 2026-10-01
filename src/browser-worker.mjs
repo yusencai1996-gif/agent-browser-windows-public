@@ -54,7 +54,12 @@ process.on('message',async m=>{
   },()=>workspace.launch(paths=>launchPreparedBrowser({...paths,...(shared?{profile:shared.profile,freshProfile:shared.fresh}:{freshProfile:true}),config:params.config,headless:params.headless,visible:params.visible,signal:startupController.signal,opencliExtension:params.opencliExtension,diagnosticCorrelation:startupCorrelation})));
   try{
     browser=await launching;
-    if(browser)browser.manage=browserOverview(browser);
+    if(browser){
+      browser.manage=browserOverview(browser);
+      // A headed instance always owns a management tab. Only explicit visible
+      // startup raises it; ordinary Agent startup remains in the background.
+      if(!params.headless)await browser.manage(params.visible?'open':'ensure');
+    }
     clearTimeout(startupTimer);
     if(!browser || closing)return;
     logEvent('browser_ready',{correlationId:startupCorrelation,state:'ready'});

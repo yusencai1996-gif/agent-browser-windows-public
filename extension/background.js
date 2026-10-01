@@ -2197,6 +2197,7 @@ const HANDLERS = {
       let readiness;
       try{readiness=await waitForReady(tab.id,{expectNav:!!p.url,blank:!p.url||p.url==='about:blank'});}
       catch(e){e.details={...e.details,tabId:tab.id,created:true};throw e;}
+      await management.settleAgentTab(tab);
       // The page may have closed after the readiness probe; do not publish a dead ID.
       try{await chrome.tabs.get(tab.id);}catch{throw Object.assign(err('NO_TAB','创建后标签已关闭'),{details:{tabId:tab.id,created:true,stage:'postcheck',navigation:'closed'}});}
       // 出生证：tabId 必须被 agent 转述进对话才能活过上下文压缩，

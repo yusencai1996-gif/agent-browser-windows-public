@@ -15,14 +15,14 @@ try {
   await new Promise(r=>fixture.listen(0,'127.0.0.1',r));
   assert.equal((await cli('doctor')).ready,true);
   // A failed browser launch can still leave our host running. Always stop it.
-  started=true;await cli('start','--temporary');await cli('task','synthetic-check');
+  started=true;await cli('start','--temporary');const initial=await cli('status');assert.equal(initial.instances[0].window.windows.length,1);assert.equal(initial.instances[0].window.windows[0].type,'popup');assert.ok(initial.instances[0].window.windows.every(w=>w.state==='minimized'));await cli('task','synthetic-check','--agent-name','Example Agent','--display-name','Local synthetic check');
   const input=path.join(box.root,'input.json');
   await fs.writeFile(input,JSON.stringify({action:'new',url:`http://127.0.0.1:${fixture.address().port}`}));
   const tab=await cli('call','tabs','--task','synthetic-check','--input',input);
   await fs.writeFile(input,JSON.stringify({tabId:tab.tabId}));
   assert.match((await cli('call','read_text','--task','synthetic-check','--input',input)).text,/Browser smoke passed/);
   await cli('call','screenshot','--task','synthetic-check','--input',input);
-  const overview=await cli('overview');const s=await cli('status');assert.ok(s.instances[0].window.windows.some(w=>w.id===overview.windowId&&w.state==='normal'));
+  const overview=await cli('overview');const s=await cli('status');assert.ok(initial.instances[0].window.windows.some(w=>w.id===overview.windowId));assert.ok(s.instances[0].window.windows.some(w=>w.id===overview.windowId&&w.state==='normal'));
   await cli('end','synthetic-check');assert.equal((await cli('stop')).cleanupConfirmed,true);started=false;
   console.log(JSON.stringify({passed:true,temporary:true,localFixture:true,read:true,screenshot:true,overview:true,stopped:true,browserCacheReused:true}));
 } catch(error) { console.error('SMOKE_FAILURE:',error.message);throw error; } finally {
