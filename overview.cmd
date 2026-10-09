@@ -1,2 +1,3 @@
 @echo off
-node "%~dp0src\cli.mjs" overview %*
+call "%~dp0abw.cmd" start
+exit /b %errorlevel%

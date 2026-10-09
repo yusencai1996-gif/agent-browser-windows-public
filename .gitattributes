@@ -1,3 +1,9 @@
 # Preserve snapshot and original third-party license bytes across checkout.
 # MANIFEST.json describes bytes, including intentional source line endings.
 * -text
+# Source manifests preserve original bytes. Accept Windows CRLF explicitly.
+*.cmd whitespace=cr-at-eol
+native/** whitespace=cr-at-eol
+# Preserve upstream license/library formatting rather than rewriting notices.
+native/licenses/** whitespace=-blank-at-eol,-space-before-tab,cr-at-eol
+native/node_modules/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol

@@ -1,4 +1,7 @@
 node_modules/
+# Native source preview includes only the pinned, licensed production graph.
+!native/node_modules/
+!native/node_modules/**
 .local/
 artifacts/
 downloads/

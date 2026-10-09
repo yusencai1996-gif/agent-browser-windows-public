@@ -1,0 +1,13 @@
+{
+  "name": "agent-browser-windows-native",
+  "version": "0.10.0-alpha.1",
+  "private": false,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": "26.2.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

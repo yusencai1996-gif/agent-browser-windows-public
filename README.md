@@ -1,3 +1,15 @@
+# Current native source preview
+
+当前原生 WebView2 版本的中性源码在 [`native/`](native/README.md)。这是需要本机构建的 **Native SOURCE preview**，不是下载即用或可移位安装包。本轮更新公开源码和说明；没有新增标签、Release 或二进制下载包。
+
+源码包含任务总览、两 Agent/各四页、11 CLI/MCP 工具及公网连接保护。构建要求 Windows x64、官方 Node 26.2.0、WebView2 SDK/Runtime 与 VS2022 C++ Build Tools；构建后严格绑定新目录和本机运行时 hash。现有 Profile 不迁入。详细限制、构建和 Agent 用法见 [native README](native/README.md)。
+
+本次源检查与 17 项合成测试通过；新中文空格目录的同机构建、空工作区、真实公网页/PNG、MCP11工具/EOF和同出生身份退出已有实际证据。其它电脑、全部 Windows 版本、任意网站和真实登录没有验证。连接保护不是 OS 沙盒。
+
+根 `abw.cmd`/`overview.cmd` 提示先完成 native 本机构建；从生成的安装目录使用其 `abw.cmd`。不自动转旧引擎。下面保留旧 Chromium 源码说明，旧标签与资产保持历史状态。
+
+---
+
 # Agent Browser for Windows
 
 **开发者 Alpha · 0.9.1-alpha.1** — C 总览使用独立 popup 外壳，左侧按 Agent/任务垂直列出网页，右侧观察选中页面的近期截图；实际网页留在另一个原生后台工作窗。首次/新代只默认观察活动任务，人工或未分配页不被自动选中；创建人工窗口也不会自动开始观察。不是系统默认浏览器，也不是所有网站或 Agent 的兼容保证。
