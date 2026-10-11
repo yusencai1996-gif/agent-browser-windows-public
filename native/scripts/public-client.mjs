@@ -34,6 +34,7 @@ export function discovery(argv){
  },limits:{tasks:2,pagesPerTask:4,taskIdMax:40,optionalTopNavigationOriginsMax:8,inputBytesMax:60000,inputDeadlineMs:5000},
  origins:{defaultMode:"public-https",navigationOrigins:null,optionalExplicitMax:8,publicStaticResources:true,immutable:true,explicitHttps:true,wildcards:false},
  stdin:inputExamples,ownership:'已有shared服务不能认领停止。只结束自己的任务；stop还须核验实际路径、父子、born/claim且无人类/pending/其它任务。',
+ recovery:'IPC_OUTCOME_UNKNOWN_5也可能是管道忙或权限失败，不等于宿主死亡。正常start在私有锁下独立核验，仅确证dead才隔离旧state恢复；live复用，unknown报错。Profile不迁删，不手删state/强杀，不重放工具请求。',
  migration:'新版11工具，文件输入改为stdin；旧14/OpenCLI/diagnostics/scope修改命令未兼容。查当前工具schema，不反复盲试。',
  });
  if(command==='tools'&&argv.length===1)return result(true,{version:VERSION,tools:TOOLS});
@@ -54,6 +55,7 @@ export function withAdvice(reply,argv){
   helpCommand:'abw help',migrationDocument,
  };
  if(code==='INPUT_STDIN_ONLY')reply.error.advice={action:'--input只接受-。将JSON管道传入stdin并关闭EOF；文件内容可由调用者管道传入，不能将文件路径作为--input值。',examples:inputExamples,helpCommand:'abw help',migrationDocument};
+ if(code==='IPC_OUTCOME_UNKNOWN_5')reply.error.advice={meaning:'管道打开失败；可能不存在、忙或权限失败，不能仅凭错误码判定宿主已死。',action:['start','status'].includes(argv[0])?'可用正常start --claim-id 新UUID交内置安全检查；仅确证dead且无占用才恢复，unknown保留现场报错。':'本次工具结果未知，不重放工具请求；先查status，必要时由正常start做安全死亡核验。',preserve:'不手删state、不强杀、不读取或重建Profile；created:false不认领。'};
  if(code==='UNSUPPORTED'||code==='INVALID_ARGUMENTS')reply.error.advice={action:'使用abw help和abw tools；当前新版不兼容旧14/OpenCLI/diagnostics/scope修改命令。'};
  return reply;
 }

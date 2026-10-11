@@ -754,8 +754,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 4330,
-      "sha256": "56b7ae52cd5a9b683b25df2ca009a68200a6502e86696191a01e0264417179fa"
+      "bytes": 5429,
+      "sha256": "3dc735fc32ada611dd6748ea753009d1fd30d68ddf65955fdf2824078af60cd5"
     },
     {
       "path": "scripts/alias.mjs",
@@ -779,8 +779,8 @@
     },
     {
       "path": "scripts/cli.mjs",
-      "bytes": 6241,
-      "sha256": "d4ab9924f382d8ce1aa17e74c711b69bd1c73b0e11027b6c74d081eab4a0ea04"
+      "bytes": 8679,
+      "sha256": "7dff22afeb1791c34afa2cccbf29d413e7c70e1d98a4612600087c68f7d6b8af"
     },
     {
       "path": "scripts/connection-filter.mjs",
@@ -844,8 +844,8 @@
     },
     {
       "path": "scripts/public-client.mjs",
-      "bytes": 7066,
-      "sha256": "8ef04705e013f603c337fa9dd12b7b0c6282828c9c79632359f4e6a1d6f35e83"
+      "bytes": 7892,
+      "sha256": "6c85699c26ae4aba6dffe921a147a2008b21ad570b4b427e6188df11a220287a"
     },
     {
       "path": "scripts/render-probe.mjs",
@@ -976,6 +976,31 @@
       "path": "test/startup-resources.test.mjs",
       "bytes": 1051,
       "sha256": "d15ec52dcc9b0e353b0c2f4536f227c4367a05864d89263c417900061957c5ce"
+    },
+    {
+      "path": "scripts/dead-recovery.mjs",
+      "bytes": 943,
+      "sha256": "4012b12f1cba1eb623e404a830e99cce4ac0015f1a04c99fe46436ec9d1572f6"
+    },
+    {
+      "path": "scripts/recover-dead-state.ps1",
+      "bytes": 17808,
+      "sha256": "dc3e7e71bc0b9b6425eb274667086f63286ab2bcdbde943c4f2c2a3668c4f75c"
+    },
+    {
+      "path": "scripts/start-owner.ps1",
+      "bytes": 2596,
+      "sha256": "eeb1803b3101755f46c2ff729e1122b1c12e59819d4bc83ae752a37c048a17fe"
+    },
+    {
+      "path": "test/dead-recovery.test.mjs",
+      "bytes": 2401,
+      "sha256": "752a3955ea6e8b4ea44398204eee988f6025c9b28866ccbc918a25f250dd9e6e"
+    },
+    {
+      "path": "test/recovery-binding.test.mjs",
+      "bytes": 1935,
+      "sha256": "c9e5a848c5d2c2760e99fc26bdea471667c52e0191673af8a2d6ef3a334aa8b5"
     }
   ]
 }

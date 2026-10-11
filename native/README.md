@@ -26,6 +26,12 @@ Paths are examples, not defaults. The script refuses an existing root and repars
 
 The preview permits one native instance per user. Fixed local fixture ports and shared instance guards may conflict with another build or an older installation; conflicts fail closed. Do not stop an unrelated service to make a test pass. No claim of cross-machine portability or all Windows versions is made.
 
+## Confirmed-dead startup recovery
+
+Normal `start` serializes startup under a private current-user lock. A live service is reused with `created:false`. IPC exit5 alone does not prove death: busy pipes or access failures may also return it. Only independently confirmed dead registered processes, an absent pipe, clear instance mutex/Profile usage and an unchanged private state snapshot permit recovery. Old state and task registrations are preserved in a private archive within the bound installation root; the original Profile stays in place. Re-register your own task after recovery. Unknown outcomes fail closed: do not delete state, kill processes, rebuild the Profile or replay a tool request.
+
+The helpers use the existing locally generated `binding.json`, exact runtime paths/hashes and the current native pipe/mutex contracts. No portable installation or runtime discovery framework is added. The upstream same-machine repair has actual recovery evidence; these neutral public binding adaptations have source/unit checks, with a fresh public local build/runtime recovery still unverified.
+
 ## Agent use
 
 From the successfully built installation root:
