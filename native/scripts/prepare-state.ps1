@@ -19,12 +19,12 @@ if(-not(Test-Path -LiteralPath $aclFull)){
  # intermediate inherited-ACL state where capabilities could become visible.
  [IO.Directory]::CreateDirectory($aclFull,$aclSecurity) | Out-Null
  $aclClaim=[IO.File]::Open($aclMarker,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::Read)
- try{$aclBytes=[Text.Encoding]::ASCII.GetBytes('{"version":"0.10.0-alpha.1","ownerSid":"'+$aclSid.Value+'"}');$aclClaim.Write($aclBytes,0,$aclBytes.Length)}finally{$aclClaim.Dispose()}
+ try{$aclBytes=[Text.Encoding]::ASCII.GetBytes('{"version":"0.10.0-alpha.2","ownerSid":"'+$aclSid.Value+'"}');$aclClaim.Write($aclBytes,0,$aclBytes.Length)}finally{$aclClaim.Dispose()}
 }
 if((Get-Item -LiteralPath $aclFull -Force).Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'STATE_REPARSE'}
 $aclActual=Get-Acl -LiteralPath $aclFull
 if(-not $aclActual.AreAccessRulesProtected -or @($aclActual.Access).Count -ne 1 -or $aclActual.Access[0].IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -ne $aclSid.Value -or $aclActual.Access[0].AccessControlType -ne 'Allow' -or ($aclActual.Access[0].FileSystemRights -band [Security.AccessControl.FileSystemRights]::FullControl) -ne [Security.AccessControl.FileSystemRights]::FullControl){throw 'STATE_ACL'}
 if(-not(Test-Path -LiteralPath $aclMarker -PathType Leaf) -or ((Get-Item -LiteralPath $aclMarker -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'STATE_CLAIM_UNKNOWN'}
 $aclClaim=Get-Content -LiteralPath $aclMarker -Raw | ConvertFrom-Json
-if($aclClaim.version -cne '0.10.0-alpha.1' -or $aclClaim.ownerSid -cne $aclSid.Value){throw 'STATE_CLAIM_UNKNOWN'}
+if($aclClaim.version -cne '0.10.0-alpha.2' -or $aclClaim.ownerSid -cne $aclSid.Value){throw 'STATE_CLAIM_UNKNOWN'}
 '{"protected":true,"currentUserOnly":true,"claimed":true}'

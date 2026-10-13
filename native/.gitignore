@@ -1,0 +1,12 @@
+/tools/
+/vendor/
+/build/
+/out/
+/payload/
+/binding.json
+/INSTALLATION.ini
+/.local/
+/.state/
+/captures/
+!node_modules/
+!node_modules/**

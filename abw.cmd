@@ -1,4 +1,4 @@
 @echo off
-echo Native SOURCE preview: build native\build.ps1 into a new local root first.
-echo Read native\README.md and use abw.cmd from the generated installation.
+echo Download the Native Setup.exe from this repository's Releases page.
+echo Read native\INSTALL.zh-CN.md and use abw.exe from your actual installation.
 exit /b 2

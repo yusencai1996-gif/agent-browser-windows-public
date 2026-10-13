@@ -1,58 +1,21 @@
-# Agent Browser Windows — Native SOURCE preview
+# Agent Browser Native — Windows x64 installer preview
 
-`v0.10.0-alpha.1` is a Windows x64 **source preview**, requiring a trusted local build. It is not a portable executable download. The generated installation is bound to one exact directory, Node executable and the local system PowerShell hash. Do not move it or redistribute generated binaries, bindings, state or Profile. Windows servicing or changing runtime paths requires a fresh empty-root build.
+Version 0.10.0-alpha.2 is a fresh-install Setup.exe candidate. Consult release validation for the Windows environments actually tested; an x64 build does not prove every Windows version works.
 
-The native WebView2 browser provides a task overview, two Agent owners with four pages each, and 11 CLI/MCP tools. Normal public HTTPS resources, APIs, frames and WSS are supported. Connection checks block representative local/private destinations and fail closed on proxy errors; this is not an operating-system sandbox. Login and account authorization belong to the user. No existing browser Profile is imported.
+Setup runs for the current user and requires a new local directory. It checks Windows PowerShell 5.1 and WebView2 Evergreen before installation. For missing WebView2 use https://developer.microsoft.com/microsoft-edge/webview2/ and retry. Node 26.2.0 is bundled and hash-verified. End users do not need Node, Visual Studio or the WebView2 SDK installed.
 
-## Local build
+Use the installed abw.exe for CLI and MCP; abw.cmd forwards to it. The native launcher verifies program/runtime hashes before Node executes and limits inherited handles to stdin/stdout/stderr. Node preload settings are not passed to the child. Start Menu opens the normal empty overview. The installation is bound to its selected physical root and Windows user; manual relocation, parallel installation roots and in-place upgrade are unsupported.
 
-Requirements: Windows x64, Microsoft WebView2 Evergreen Runtime, Visual Studio 2022 C++ Build Tools, WebView2 SDK `1.0.4258.31`, and official Node `26.2.0` Windows x64. Obtain dependencies from their official sources:
+Commands: abw.exe help; start --claim-id NEW_UUID; task MY_TASK --agent-name MY_AGENT --display-name PURPOSE; tools; schema tabs; call TOOL --task MY_TASK --input -; mcp --task MY_TASK; end MY_TASK. Tool inputs use UTF-8 stdin and EOF. Preserve the existing ownership rules: only end your task, and stop only your verified created instance after checking other tasks/human ownership. The 11 tools and public HTTPS connection checks remain; they are not an OS sandbox.
 
-- [Node executable and checksums](https://nodejs.org/dist/v26.2.0/)
-- [WebView2 SDK package](https://www.nuget.org/packages/Microsoft.Web.WebView2/1.0.4258.31)
-- [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
-- [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/)
+Normal start reuses live services. IPC exit5 is not proof of death. Confirmed dead registrations or colliding old claim receipts can be privately archived only after the existing process/pipe/mutex/Profile/ACL/snapshot checks. Old evidence is retained, tasks need registration again, and unknown tool outcomes are not replayed. Never force-kill or delete state to bypass refusal.
 
-Extract the SDK NuGet package to a dedicated directory. Run the trusted source build script with actual local paths, using a **new nonexistent installation root** whose parent already exists:
+If Windows servicing changes PowerShell, use the explicit repair entry or abw.exe --repair-runtime after closing owned instances. Repair verifies the actual system file's Windows signature, including catalog signatures, before updating the local hash. It does not accept arbitrary replacement executable paths.
 
-```powershell
-.\build.ps1 -InstallRoot 'D:\Agent Browser Native' `
-  -NodePath 'D:\Tools\Node\node.exe' `
-  -SdkPath 'D:\Tools\WebView2SDK' `
-  -DevCmdPath 'D:\Tools\VS2022\Common7\Tools\VsDevCmd.bat'
-```
+Uninstall.exe checks that programs are unchanged and inactive, then removes only enumerated program files. No recursive data deletion is used. Profile, runs, private state/recovery archives, screenshots and unknown files remain. Fresh-only Setup will still refuse an existing retained-data directory. Failed installation leaves an inspectable partial directory, not a verified working installation.
 
-Paths are examples, not defaults. The script refuses an existing root and reparse-point ancestors, checks the official Node and SDK loader SHA, clears Node preload environment variables, compiles GUI/gate with `/MT`, and generates one shared exact binding for C++, Node and PowerShell. New Profile and run directories are beneath that root. System PowerShell 5.1 is bound to its measured local path/hash; it is the sole runtime file allowed to have servicing hardlinks. Build failures retain their new root and logs for inspection; nothing stops or replaces an existing installation.
+Publisher builds use scripts/build-installer.ps1, scripts/prepare-payload.py and scripts/make-nsis.py with a project-local NSIS compiler. No global PATH/tool installation is required. Preserve official Node/SDK and third-party notices. Real Setup, non-administrator/restricted-token behavior, CLI/MCP/EOF, GUI recovery and uninstall retention require separate installation evidence; source tests or successful compilation do not establish them. Unsigned previews may show Windows reputation prompts. Auto-update, migration, offline WebView2 distribution and multiple parallel roots are outside this preview.
 
-The preview permits one native instance per user. Fixed local fixture ports and shared instance guards may conflict with another build or an older installation; conflicts fail closed. Do not stop an unrelated service to make a test pass. No claim of cross-machine portability or all Windows versions is made.
+The default root is %LOCALAPPDATA%\AgentBrowserNative, directly beneath the existing per-user local application-data directory. Uninstall retains binding/ownership records and a private progress marker, so an interrupted removal can retry with its embedded same-version checker; only listed missing files are accepted on retry, and remaining files must still pass checks.
 
-## Confirmed-dead startup recovery
-
-Normal `start` serializes startup under a private current-user lock. A live service is reused with `created:false`. IPC exit5 alone does not prove death: busy pipes or access failures may also return it. Only independently confirmed dead registered processes, an absent pipe, clear instance mutex/Profile usage and an unchanged private state snapshot permit recovery. Old state and task registrations are preserved in a private archive within the bound installation root; the original Profile stays in place. Re-register your own task after recovery. Unknown outcomes fail closed: do not delete state, kill processes, rebuild the Profile or replay a tool request.
-
-Normal shutdown also retains old launch receipts. Reusing a claim now checks and privately archives confirmed-dead unregistered state before starting, so an old receipt cannot cause a post-start `EEXIST`. Unknown tasks, missing birth identity, active/reused PIDs or changed state still refuse recovery; the old proof remains preserved. A fresh claim with no collision follows the existing startup path.
-
-The helpers use the existing locally generated `binding.json`, exact runtime paths/hashes and the current native pipe/mutex contracts. No portable installation or runtime discovery framework is added. The upstream same-machine repair has actual recovery evidence; these neutral public binding adaptations have source/unit checks, with a fresh public local build/runtime recovery still unverified.
-
-## Agent use
-
-From the successfully built installation root:
-
-```powershell
-.\abw.cmd help
-.\abw.cmd start
-.\abw.cmd task MY_TASK --agent-name MY_AGENT --display-name PURPOSE
-.\abw.cmd tools
-.\abw.cmd schema tabs
-'{"action":"new","url":"https://docs.python.org/"}' | .\abw.cmd call tabs --task MY_TASK --input -
-.\abw.cmd mcp --task MY_TASK
-.\abw.cmd end MY_TASK
-```
-
-For PowerShell stdin, set both `[Console]::OutputEncoding` and `$OutputEncoding` to UTF-8. Tool payloads use stdin only, followed by EOF. Use the generated `abw.cmd` launcher for CLI and MCP so preload variables are cleared before Node starts. An Agent owns and ends its own task. A shared host must only be stopped with its verified creation/instance identity and when no other task or human control remains; do not issue unbound stop against an unknown host.
-
-Source-only tests: run `node --test test/*.test.mjs` with the verified Node 26.2.0 executable. Synthetic tests cover input framing, scope, connection filtering and startup rollback. They do not prove runtime rendering, login, every website or cross-machine compatibility.
-
-## Distribution boundaries
-
-This source tree contains only whitelisted product code, synthetic tests and required library/license files. `SOURCE-MANIFEST.json` records file hashes. The source ZIP excludes executables, Node runtime, generated local bindings, Profile, cookies, capabilities, service state, private Git/history and private verification evidence. The root repository retains the earlier Chromium source and releases as legacy history; this native source preview is a separate implementation.
+Alpha limitation: when another higher-privilege WebView process identity/command line is unreadable, non-administrator recovery or a reused claim may safely refuse with RECOVERY_PROFILE_BROWSER_UNKNOWN. This is not a claim that recovery works in every environment. Do not elevate, force-kill, delete state or switch claims to bypass the safety refusal.

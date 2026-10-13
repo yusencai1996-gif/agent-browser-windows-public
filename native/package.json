@@ -1,6 +1,6 @@
 {
   "name": "agent-browser-windows-native",
-  "version": "0.10.0-alpha.1",
+  "version": "0.10.0-alpha.2",
   "private": false,
   "type": "module",
   "license": "MIT",

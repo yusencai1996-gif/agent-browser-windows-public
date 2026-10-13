@@ -3,17 +3,22 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
+import {readFileSync} from 'node:fs';
 
-import binding from '../binding.json' with {type:'json'};
+// Source-only unit tests may import schemas without an installation. Execution
+// still fails closed in verifyDeployment until the native installer has bound it.
+let binding={};try{binding=JSON.parse(readFileSync(new URL('../binding.json',import.meta.url),'utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
 export const CANDIDATE_ROOT=binding.root;
 export const PROFILE=binding.profile;
 export const RUNS=binding.runs;
 export const POWERSHELL=binding.powershell;
 export const NODE=binding.node;
-export const VERSION='0.10.0-alpha.1';
+export const VERSION='0.10.0-alpha.2';
 export function runtimeEnvironment(){
  const env={};for(const key of ['SystemRoot','WINDIR','ComSpec','SYSTEMDRIVE','NUMBER_OF_PROCESSORS'])if(process.env[key])env[key]=process.env[key];
- env.PATH=path.join(env.SystemRoot,'System32');env.PATHEXT='.COM;.EXE;.BAT;.CMD';return env;
+ env.PATH=path.join(env.SystemRoot,'System32');env.PATHEXT='.COM;.EXE;.BAT;.CMD';
+ env.PSModulePath=path.join(path.dirname(POWERSHELL),'Modules');
+ env.TEMP=path.join(CANDIDATE_ROOT,'.local','temp');env.TMP=env.TEMP;return env;
 }
 const root=path.resolve(fileURLToPath(new URL('..',import.meta.url)));
 const reject=code=>{throw Object.assign(new Error(code),{code});};
@@ -29,6 +34,7 @@ export async function plainPath(target,{directory=false}={}){
 }
 let verified;
 export function verifyDeployment(){return verified??=(async()=>{
+ if(!binding.root)reject('INSTALLATION_REQUIRED');
  if(root.toLowerCase()!==path.resolve(CANDIDATE_ROOT).toLowerCase())reject('CANDIDATE_ROOT_SCOPE');
  if(PROFILE!==path.join(CANDIDATE_ROOT,'.local','profile')||RUNS!==path.join(CANDIDATE_ROOT,'.local','runs'))reject('BINDING_SCOPE');
  if(process.execPath.toLowerCase()!==path.resolve(NODE).toLowerCase()||process.version!=='v26.2.0'||process.arch!=='x64')reject('NODE_VERSION_UNVERIFIED');

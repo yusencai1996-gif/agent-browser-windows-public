@@ -5,7 +5,7 @@ $recoveryRoot=$binding.root
 $recoveryProfile=$binding.profile
 $recoveryNode=$binding.node
 $recoveryPs=$binding.powershell
-$recoveryVersion='0.10.0-alpha.1'
+$recoveryVersion='0.10.0-alpha.2'
 $recoveryHeld=$null;$recoveryPipe=[IntPtr]::Zero
 try{
  if($PSScriptRoot -ine (Join-Path $recoveryRoot 'scripts') -or $LeaseBirth -notmatch '^[a-f0-9]{16}$' -or $NewClaimId -notmatch '^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$'){throw 'RECOVERY_SCOPE'}

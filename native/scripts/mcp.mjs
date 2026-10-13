@@ -1,7 +1,8 @@
+import {VERSION} from './deployment.mjs';
 import {TOOLS} from './tools.mjs';import {invoke,session} from './session.mjs';import {result,fail,bounded,budgets,requestBudget} from './wire.mjs';import {stdoutUntil,outputFailedExit} from './output.mjs';
 export async function serve(alias,expected){await session(alias,expected);let initialized=false,notified=false,buffer='',queue=Promise.resolve(),queued=0,fragmentTimer;const send=async m=>{const line=JSON.stringify(m)+'\n';if(Buffer.byteLength(line)>12000000)throw fail('OUTPUT_LIMIT');try{await stdoutUntil(line,requestBudget());}catch{outputFailedExit();}};
  const handle=async m=>{if(m?.jsonrpc!=='2.0'||typeof m.method!=='string')return send({jsonrpc:'2.0',id:m?.id??null,error:{code:-32600,message:'Invalid request'}});if(m.method==='notifications/initialized'){notified=true;return;}if(!Object.hasOwn(m,'id'))return;
-  if(m.method==='initialize'){initialized=true;return send({jsonrpc:'2.0',id:m.id,result:{protocolVersion:'2024-11-05',capabilities:{tools:{}},serverInfo:{name:'agent-browser-native',version:'0.10.0-alpha.1'}}});}
+  if(m.method==='initialize'){initialized=true;return send({jsonrpc:'2.0',id:m.id,result:{protocolVersion:'2024-11-05',capabilities:{tools:{}},serverInfo:{name:'agent-browser-native',version:VERSION}}});}
   if(!initialized||!notified)return send({jsonrpc:'2.0',id:m.id,error:{code:-32000,message:'Initialize first'}});
   if(m.method==='tools/list')return send({jsonrpc:'2.0',id:m.id,result:{tools:TOOLS}});
   if(m.method==='tools/call'){let r;try{r=await invoke(alias,m.params?.name,m.params?.arguments??{},{image:m.params?.name==='screenshot'},expected);}catch(e){r=result(false,null,e.code||'TOOL_UNKNOWN');}const image=r.data?.imageBase64;if(image)delete r.data.imageBase64;const content=[{type:'text',text:JSON.stringify(r)}];if(image)content.push({type:'image',data:image,mimeType:'image/png'});return send({jsonrpc:'2.0',id:m.id,result:{content,isError:!r.ok}});}

@@ -1,11 +1,31 @@
 {
-  "version": "0.10.0-alpha.1",
-  "distribution": "native-source-preview",
+  "version": "0.10.0-alpha.2",
+  "sourceOnly": true,
   "files": [
     {
-      "path": "binding.json",
-      "bytes": 106,
-      "sha256": "05ea989936fc15b648b634e4b10ada47731ae3c9ca1202aa912c0e6b2540f3ae"
+      "path": ".gitignore",
+      "bytes": 134,
+      "sha256": "9a73fdce571062e4b7b1a57fe7e520e2832a9f47e45b76a4f4eecea1d0a59dae"
+    },
+    {
+      "path": "DEPENDENCIES.json",
+      "bytes": 23475,
+      "sha256": "f55e23e96435b7693db2ad96049bfdb7de9dccd0265873715cc18d099bbe3dd5"
+    },
+    {
+      "path": "INSTALL.zh-CN.md",
+      "bytes": 2482,
+      "sha256": "2cbd0279fb78d3e2570177a70e5e79a3bd357075d8a44592de76872f3e1f0485"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1095,
+      "sha256": "954fab9f6d94cf2c107ca3d4870a4139b6f379d1bb11c015adc69196383736f6"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3951,
+      "sha256": "6975a32a2f5e2a1cdb83f9927d61e5536571ca078facb69455fa0536314ed394"
     },
     {
       "path": "build.ps1",
@@ -13,14 +33,29 @@
       "sha256": "09b9acb07424e2db12c357aa72927550007781d8dd76195bf79b6fede19093eb"
     },
     {
-      "path": "DEPENDENCIES.json",
-      "bytes": 24065,
-      "sha256": "0321276933f94e01d1438bfa256badd346e385cd2401f8242204bcaecb35954c"
+      "path": "installer/payload-delete-files.nsh",
+      "bytes": 60054,
+      "sha256": "88169fd4705dffbf11e07b8afd8512f5dd31e57c91f1fdb5b9ee0a42e08edc35"
     },
     {
-      "path": "LICENSE",
-      "bytes": 1116,
-      "sha256": "5f3fa155132acd1b2175bf71092a38e6bb68b4d4603226b0bdd8b0a3beab2f2b"
+      "path": "installer/payload-files.nsh",
+      "bytes": 20994,
+      "sha256": "d3792a971e0db4760c2929072d011f8339f97a39e3ca3e9c13f6760b5649da00"
+    },
+    {
+      "path": "installer/payload-hold-directories.nsh",
+      "bytes": 2753,
+      "sha256": "dc8e6021299df9740e9246a4e316cfe4284ad76b77976f5d2671ae7e32d5f05d"
+    },
+    {
+      "path": "installer/payload-remove-empty-directories.nsh",
+      "bytes": 1631,
+      "sha256": "240f434a338f59dc23b893d3fe0f7bb011d12f8dee82d68fa858fb8bd3f2e77b"
+    },
+    {
+      "path": "installer/setup.nsi",
+      "bytes": 7569,
+      "sha256": "ec0356ec0500be323d5552b31f641aea1df95c49a4d2b794b0819731cbda3860"
     },
     {
       "path": "licenses/NODE-LICENSE.txt",
@@ -41,6 +76,11 @@
       "path": "licenses/WebView2-NOTICE.txt",
       "bytes": 3894,
       "sha256": "106423785c5b7eba0a8e61d1837f2132e9c828e20ad530f565d981c1df60dd90"
+    },
+    {
+      "path": "node_modules/ajv/LICENSE",
+      "bytes": 1090,
+      "sha256": "a05350a88e318e4f5f2c2a1ff1e2e88daa4dd38e6e78b71cccae422bdc762cc3"
     },
     {
       "path": "node_modules/ajv/dist/2019.js",
@@ -668,19 +708,9 @@
       "sha256": "666d1a2aa25c0dfe3cf41312d0f9d40e9f99eb2c19be7469134ad89005aadd52"
     },
     {
-      "path": "node_modules/ajv/LICENSE",
-      "bytes": 1090,
-      "sha256": "a05350a88e318e4f5f2c2a1ff1e2e88daa4dd38e6e78b71cccae422bdc762cc3"
-    },
-    {
       "path": "node_modules/ajv/package.json",
       "bytes": 4405,
       "sha256": "1f9033ee5a6515e7d76938b7072941862d1ed228a6879cc7fe10cdeb75107989"
-    },
-    {
-      "path": "node_modules/fast-deep-equal/index.js",
-      "bytes": 1177,
-      "sha256": "eb469e206280321a3878f2335ec98aa2104a155079d8ed83a23029098dccd215"
     },
     {
       "path": "node_modules/fast-deep-equal/LICENSE",
@@ -688,9 +718,19 @@
       "sha256": "7bf9b2de73a6b356761c948d0e9eeb4be6c1270bd04c79cd489c1e400ffdfc1a"
     },
     {
+      "path": "node_modules/fast-deep-equal/index.js",
+      "bytes": 1177,
+      "sha256": "eb469e206280321a3878f2335ec98aa2104a155079d8ed83a23029098dccd215"
+    },
+    {
       "path": "node_modules/fast-deep-equal/package.json",
       "bytes": 1496,
       "sha256": "a5c63940db0260739be9e2ac67f3aac268df4db5770420ee4e34e493152f97d2"
+    },
+    {
+      "path": "node_modules/fast-uri/LICENSE",
+      "bytes": 1813,
+      "sha256": "b010b0dfdfdb23d7396e03b82cd4621fc9bb8f95d6b0aea70b9c24e12074c786"
     },
     {
       "path": "node_modules/fast-uri/index.js",
@@ -708,24 +748,19 @@
       "sha256": "610a6cfa7b1c9d5689443b3a3d14af4c24afed51ef5852495ae1489ae455a9f4"
     },
     {
-      "path": "node_modules/fast-uri/LICENSE",
-      "bytes": 1813,
-      "sha256": "b010b0dfdfdb23d7396e03b82cd4621fc9bb8f95d6b0aea70b9c24e12074c786"
-    },
-    {
       "path": "node_modules/fast-uri/package.json",
       "bytes": 1983,
       "sha256": "e634f3848a2c6c7e1cdc28b119b16e072e10dada8a3ca3f175a2372d0dd83360"
     },
     {
-      "path": "node_modules/json-schema-traverse/index.js",
-      "bytes": 2428,
-      "sha256": "024191b747afac01b28ff11d744e9f82720bbad5f716163ba5c962eb62aa2350"
-    },
-    {
       "path": "node_modules/json-schema-traverse/LICENSE",
       "bytes": 1074,
       "sha256": "7bf9b2de73a6b356761c948d0e9eeb4be6c1270bd04c79cd489c1e400ffdfc1a"
+    },
+    {
+      "path": "node_modules/json-schema-traverse/index.js",
+      "bytes": 2428,
+      "sha256": "024191b747afac01b28ff11d744e9f82720bbad5f716163ba5c962eb62aa2350"
     },
     {
       "path": "node_modules/json-schema-traverse/package.json",
@@ -749,18 +784,18 @@
     },
     {
       "path": "package.json",
-      "bytes": 252,
-      "sha256": "0aa59d7b73710db272e71463f80a9c3d98c69d1c15f5d44ff324dd17cc4f9de8"
-    },
-    {
-      "path": "README.md",
-      "bytes": 5833,
-      "sha256": "2395b99c0732a78f81178638d205cfb015f5769e210b9a359c0e6c0640c65340"
+      "bytes": 239,
+      "sha256": "38b367a5f112d294df21665c5654ed69e3988e648868add1f2462510dac597bd"
     },
     {
       "path": "scripts/alias.mjs",
       "bytes": 697,
       "sha256": "3549c1ca33747932538141a5582095e89bb5e375cad979f77986b4d7de9acf3f"
+    },
+    {
+      "path": "scripts/build-installer.ps1",
+      "bytes": 2793,
+      "sha256": "f7ac56f81af8106d00d243edd438aee69c44bbbced08692585bc3e64e1ab5531"
     },
     {
       "path": "scripts/canary.mjs",
@@ -788,9 +823,14 @@
       "sha256": "16e65e61c885d9e30d4e64839782d41be1427722e4f58b3da9f46c5f3170ccc2"
     },
     {
+      "path": "scripts/dead-recovery.mjs",
+      "bytes": 1069,
+      "sha256": "b705800b71956253278a4f90c199bf92d54253d01c208170badd745ac4b660e8"
+    },
+    {
       "path": "scripts/deployment.mjs",
-      "bytes": 2982,
-      "sha256": "62ef1f345020d1221e9f0f3be85b8cc6246b1c58797f52d46cf7489a45152211"
+      "bytes": 3455,
+      "sha256": "920409c058d2d3508ea0281b833111a2708741e3bb3027c4ec22daa02b5dc7f7"
     },
     {
       "path": "scripts/dom.mjs",
@@ -803,6 +843,11 @@
       "sha256": "028f85dbe820ce7938e73f582bf072e98d7b8109531714a9d29241fd236a312f"
     },
     {
+      "path": "scripts/fetch-build-dependencies.py",
+      "bytes": 4468,
+      "sha256": "efc9090872b6643ea24bbb451268aca51c961fe4323f0b88cb3eab3f54c2f544"
+    },
+    {
       "path": "scripts/fixture.mjs",
       "bytes": 7208,
       "sha256": "dbcf45c4eaea002b1dc54149fb900b6b7edc60774c46fa3ddd6083f108fa7823"
@@ -813,9 +858,14 @@
       "sha256": "99bf25f554a53fff00041bd4fae580fab3460e4155dfc0ac89784364ba41f3be"
     },
     {
+      "path": "scripts/make-nsis.py",
+      "bytes": 1936,
+      "sha256": "b7a58fb18f438f5d0c0bbf4fa80966a877238e96cf7816e6292dbe9e18da52b5"
+    },
+    {
       "path": "scripts/mcp.mjs",
-      "bytes": 2761,
-      "sha256": "a8f266e95dd005fa2b501d9357fca74fcc3f29cee76519a01b50faf37a852ab9"
+      "bytes": 2794,
+      "sha256": "4c7dcf32e555516e47e35c0272b1529baca50828867d840d8177651c70fc4beb"
     },
     {
       "path": "scripts/native.mjs",
@@ -838,14 +888,24 @@
       "sha256": "bc2d73a4274e2d20cde9992cc93b7e6844ce192f854ddcf72cd4e4beba99d2c5"
     },
     {
+      "path": "scripts/prepare-payload.py",
+      "bytes": 2898,
+      "sha256": "514e136603f9019b0ac91cfcdf44e66be72a7f0ca2b13379e7c147f1a7d52f60"
+    },
+    {
       "path": "scripts/prepare-state.ps1",
       "bytes": 2727,
-      "sha256": "529faff6700143da4b78338feba6b7abf5d52e04a40e71366b68ae1353e4a18a"
+      "sha256": "b32337fef52be62794f86bbd8f0dc50d692dbc098aa8499c1589fcccc1d54358"
     },
     {
       "path": "scripts/public-client.mjs",
       "bytes": 7892,
       "sha256": "6c85699c26ae4aba6dffe921a147a2008b21ad570b4b427e6188df11a220287a"
+    },
+    {
+      "path": "scripts/recover-dead-state.ps1",
+      "bytes": 18965,
+      "sha256": "42f2db97ea22842e38e9ddce3a728d9a4a61785ecc73c40df3829cf53869c572"
     },
     {
       "path": "scripts/render-probe.mjs",
@@ -868,9 +928,19 @@
       "sha256": "79bc5e2b917c003495a36bdb7c6d09eabd16695f70bf4c6778b9036f00f310cc"
     },
     {
+      "path": "scripts/start-owner.ps1",
+      "bytes": 2596,
+      "sha256": "eeb1803b3101755f46c2ff729e1122b1c12e59819d4bc83ae752a37c048a17fe"
+    },
+    {
       "path": "scripts/startup-resources.mjs",
       "bytes": 437,
       "sha256": "b1091d29a66faef721b462811fe1bced50bec4379a5c2adc5d60b3b1331d0956"
+    },
+    {
+      "path": "scripts/test-installer.ps1",
+      "bytes": 13047,
+      "sha256": "5d014af4483676d643409751b5c57bd4e179a2ea21f54bb8ed0e5563de908806"
     },
     {
       "path": "scripts/tools.mjs",
@@ -888,6 +958,11 @@
       "sha256": "193a1aff3b6ecdb9977f6d7bfa7ec5c45329443bdab14b0e85bf8c0c2b592578"
     },
     {
+      "path": "src/console-visibility.h",
+      "bytes": 446,
+      "sha256": "79fba37bb78b2beebc2bef4f6e02256fc0bb5308c3d60f144a74d2b946ed16f4"
+    },
+    {
       "path": "src/control-model.h",
       "bytes": 2007,
       "sha256": "5db7b1fde15580973139b2e9a3c4831b13665ea9d553856b20cbf16fbb838a2b"
@@ -903,9 +978,24 @@
       "sha256": "bd645cd3b898cde48f95e2e6063109f5ea0459b9dd814c8ee805ed4ec6eadf0f"
     },
     {
+      "path": "src/install-platform.h",
+      "bytes": 8222,
+      "sha256": "880d7f54ba18b0898ea1c59175a5389770d0b52273bb373d6cf6dc0612196b04"
+    },
+    {
+      "path": "src/installation-binding.h",
+      "bytes": 265,
+      "sha256": "9b9847eae2c00c6318050eb5176e3e2f4277e6f9a64c25af0abaad91a37d52a8"
+    },
+    {
       "path": "src/isolated-server-launch.h",
       "bytes": 426,
       "sha256": "d9623187e2949eea39775206021fddb895c7c9c363ccff711b67815612c66065"
+    },
+    {
+      "path": "src/launcher.cpp",
+      "bytes": 19800,
+      "sha256": "696e82fe49e8672caa121f4c62af5dd2ac9ce3f30536ccb6df20dddd2105f576"
     },
     {
       "path": "src/limited-stream.h",
@@ -929,8 +1019,8 @@
     },
     {
       "path": "src/ownership.h",
-      "bytes": 3408,
-      "sha256": "b0be5ff5dc5edf001a25c6c4ff572eed9c56c85c332222faeca752f2aefc38e2"
+      "bytes": 3415,
+      "sha256": "efa5b931040e130f341a7748ce73b37d01f864b0991108979da6a0e4463fa472"
     },
     {
       "path": "src/pipe-gate.cpp",
@@ -958,14 +1048,59 @@
       "sha256": "1a2e2ea73bc0e6c46b8c5e12967262c6f7c1b90315cedea762a727405935121a"
     },
     {
+      "path": "test/binding-path-text-probe.cpp",
+      "bytes": 672,
+      "sha256": "5687962d7152698833b07b79d25f920cea6efcf87e5e0b428097c81a1a592d47"
+    },
+    {
+      "path": "test/binding-writer-format-probe.cpp",
+      "bytes": 1019,
+      "sha256": "e52b17badb4591569a8b81c107faf73d9dbeabd91e1a4b271e5521869da4a113"
+    },
+    {
+      "path": "test/claim-reuse.test.mjs",
+      "bytes": 1515,
+      "sha256": "80574f040c42eb7b1254c35815133b76e54bb85e6adcbc8d5aeb55d731c554be"
+    },
+    {
       "path": "test/connection-filter.test.mjs",
       "bytes": 4852,
       "sha256": "75c8e730c898b3dfd9c7cd5089d17000da8e1e102cd64f61988537aa0c624854"
     },
     {
+      "path": "test/console-visibility-probe.cpp",
+      "bytes": 1198,
+      "sha256": "348112c8e41b47e1f91316798089540a1411424c1df2cddefe5e254758217065"
+    },
+    {
+      "path": "test/dead-recovery.test.mjs",
+      "bytes": 2401,
+      "sha256": "752a3955ea6e8b4ea44398204eee988f6025c9b28866ccbc918a25f250dd9e6e"
+    },
+    {
       "path": "test/input-frame.test.mjs",
       "bytes": 3116,
       "sha256": "8123325ab2d995e00fc10b2872858846b87abeb24fe71fadcbf5271a9c64236a"
+    },
+    {
+      "path": "test/module-path-guard-probe.cpp",
+      "bytes": 426,
+      "sha256": "a3e9687d845487fbf549b4c3d3abb683fb2f02f3fb5742753538c2960a65d672"
+    },
+    {
+      "path": "test/module-path-shape-probe.cpp",
+      "bytes": 1730,
+      "sha256": "45c09b033f216c0b77a8f92fa43173d48db918d616372e6ea7481ca2ea746937"
+    },
+    {
+      "path": "test/recovery-binding.test.mjs",
+      "bytes": 1935,
+      "sha256": "c9e5a848c5d2c2760e99fc26bdea471667c52e0191673af8a2d6ef3a334aa8b5"
+    },
+    {
+      "path": "test/restricted-process.cs",
+      "bytes": 8666,
+      "sha256": "d9ed4d160f1a5a2ba87d450c33404817521b283f4f77cbb9d8ecadcff5256038"
     },
     {
       "path": "test/scope.test.mjs",
@@ -978,34 +1113,19 @@
       "sha256": "d15ec52dcc9b0e353b0c2f4536f227c4367a05864d89263c417900061957c5ce"
     },
     {
-      "path": "scripts/dead-recovery.mjs",
-      "bytes": 1069,
-      "sha256": "b705800b71956253278a4f90c199bf92d54253d01c208170badd745ac4b660e8"
+      "path": "test/system-trust-probe.cpp",
+      "bytes": 390,
+      "sha256": "1a3b356f86db8cff27be2cdead0982909bf6bad1ec0a21eb5e01de89f7281a46"
     },
     {
-      "path": "scripts/recover-dead-state.ps1",
-      "bytes": 18965,
-      "sha256": "a7c8ee26619607f887adf092b7bcb35af02c60cb8a08237d705a453c6c380f34"
+      "path": "test/uninstall-marker-probe.cpp",
+      "bytes": 841,
+      "sha256": "eba338e484985e3d55aa609c764ca1dd106bfe7753bfbeece70229478bb3ae43"
     },
     {
-      "path": "scripts/start-owner.ps1",
-      "bytes": 2596,
-      "sha256": "eeb1803b3101755f46c2ff729e1122b1c12e59819d4bc83ae752a37c048a17fe"
-    },
-    {
-      "path": "test/dead-recovery.test.mjs",
-      "bytes": 2401,
-      "sha256": "752a3955ea6e8b4ea44398204eee988f6025c9b28866ccbc918a25f250dd9e6e"
-    },
-    {
-      "path": "test/recovery-binding.test.mjs",
-      "bytes": 1935,
-      "sha256": "c9e5a848c5d2c2760e99fc26bdea471667c52e0191673af8a2d6ef3a334aa8b5"
-    },
-    {
-      "path": "test/claim-reuse.test.mjs",
-      "bytes": 1515,
-      "sha256": "80574f040c42eb7b1254c35815133b76e54bb85e6adcbc8d5aeb55d731c554be"
+      "path": "test/uninstall-preflight-probe.cpp",
+      "bytes": 1568,
+      "sha256": "ce773675367996fcdf0632b9ef163f91dfeb06ab2e5694443bc4347436c0858b"
     }
   ]
 }

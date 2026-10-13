@@ -1,0 +1,46 @@
+name: Native installer candidate
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-and-check:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Official project-local dependencies
+        shell: pwsh
+        run: python native/scripts/fetch-build-dependencies.py
+      - name: Build native payload
+        shell: pwsh
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          & native/scripts/build-installer.ps1 -SdkPath "$pwd/native/tools/webview2-1.0.4258.31" -DevCmdPath "$vs/Common7/Tools/VsDevCmd.bat" -TemporaryParent "$env:RUNNER_TEMP"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python native/scripts/make-nsis.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & native/tools/nsis-3.13/makensis.exe /V2 native/installer/setup.nsi
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Targeted source tests
+        shell: pwsh
+        run: '& native/vendor/node.exe --test native/test/*.test.mjs'
+      - name: Installer acceptance candidate
+        shell: pwsh
+        run: '& native/scripts/test-installer.ps1 -SetupPath "$pwd/native/out/AgentBrowser-0.10.0-alpha.2-x64-Setup.exe" -TestParent "$env:RUNNER_TEMP"'
+      - name: Hash candidate asset
+        if: always()
+        shell: pwsh
+        run: |
+          $file = "native/out/AgentBrowser-0.10.0-alpha.2-x64-Setup.exe"
+          if (Test-Path -LiteralPath $file) { ((Get-FileHash -LiteralPath $file).Hash.ToLowerInvariant() + '  AgentBrowser-0.10.0-alpha.2-x64-Setup.exe') | Set-Content -LiteralPath "$file.sha256" -Encoding ascii }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-installer-candidate
+          retention-days: 7
+          path: |
+            native/out/*.exe
+            native/out/*.sha256
+            native/out/*MANIFEST.json
+            native/out/*RESULT.json

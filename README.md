@@ -1,12 +1,12 @@
-# Current native source preview
+# Agent Browser Native 安装版预览
 
-当前原生 WebView2 版本的中性源码在 [`native/`](native/README.md)。这是需要本机构建的 **Native SOURCE preview**，不是下载即用或可移位安装包。本轮更新公开源码和说明；没有新增标签、Release 或二进制下载包。
+当前原生 WebView2 版本为 **0.10.0-alpha.2**。从 [Releases](https://github.com/yusencai1996-gif/agent-browser-windows-public/releases) 下载 Windows x64 Setup.exe，核对随附 SHA256 后运行。普通用户不需要另装 Node、Visual Studio 或 SDK；仍需系统 PowerShell 5.1 和 WebView2 Evergreen。具体实测环境与限制见[验证说明](INSTALLER-VALIDATION.md)及对应发布说明。
 
-源码包含任务总览、两 Agent/各四页、11 CLI/MCP 工具及公网连接保护。构建要求 Windows x64、官方 Node 26.2.0、WebView2 SDK/Runtime 与 VS2022 C++ Build Tools；构建后严格绑定新目录和本机运行时 hash。现有 Profile 不迁入。详细限制、构建和 Agent 用法见 [native README](native/README.md)。
+安装后将实际安装目录中的 `abw.exe` 告知 Agent；`help`、`tools`、`schema TOOL` 提供准确用法。MCP 使用 `abw.exe mcp --task MY_TASK`。当前支持两个任务、每任务四页和11工具，正常公网 HTTPS 页面及配套资源无需逐 CDN 声明。连接保护不等于 OS 沙盒。
 
-本次源检查与 17 项合成测试通过；新中文空格目录的同机构建、空工作区、真实公网页/PNG、MCP11工具/EOF和同出生身份退出已有实际证据。其它电脑、全部 Windows 版本、任意网站和真实登录没有验证。连接保护不是 OS 沙盒。
+首版仅支持全新目录安装，暂不支持原地升级、手动搬移或资料迁入。卸载保留专用 Profile、截图和状态档案；不为重装删除登录资料。预览包尚未购买代码签名证书，Windows 可能显示信誉提示。
 
-根 `abw.cmd`/`overview.cmd` 提示先完成 native 本机构建；从生成的安装目录使用其 `abw.cmd`。不自动转旧引擎。下面保留旧 Chromium 源码说明，旧标签与资产保持历史状态。
+参阅 [中文安装说明](native/INSTALL.zh-CN.md)、[原生源码与构建](native/README.md) 和 [Agent 技能](skills/agent-browser-windows/SKILL.md)。仓库根命令只提供入口提示，请使用实际安装目录。下面保留旧 Chromium 版本说明，旧标签及下载资产保持不变；其中旧版命令不适用于当前原生安装版。
 
 ---
 
