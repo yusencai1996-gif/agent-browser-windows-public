@@ -754,8 +754,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 5429,
-      "sha256": "3dc735fc32ada611dd6748ea753009d1fd30d68ddf65955fdf2824078af60cd5"
+      "bytes": 5833,
+      "sha256": "2395b99c0732a78f81178638d205cfb015f5769e210b9a359c0e6c0640c65340"
     },
     {
       "path": "scripts/alias.mjs",
@@ -779,8 +779,8 @@
     },
     {
       "path": "scripts/cli.mjs",
-      "bytes": 8679,
-      "sha256": "7dff22afeb1791c34afa2cccbf29d413e7c70e1d98a4612600087c68f7d6b8af"
+      "bytes": 9535,
+      "sha256": "d49e64d02a6f020d79855909e4b186ceaf662346069024ebe336d31af5e24e50"
     },
     {
       "path": "scripts/connection-filter.mjs",
@@ -979,13 +979,13 @@
     },
     {
       "path": "scripts/dead-recovery.mjs",
-      "bytes": 943,
-      "sha256": "4012b12f1cba1eb623e404a830e99cce4ac0015f1a04c99fe46436ec9d1572f6"
+      "bytes": 1069,
+      "sha256": "b705800b71956253278a4f90c199bf92d54253d01c208170badd745ac4b660e8"
     },
     {
       "path": "scripts/recover-dead-state.ps1",
-      "bytes": 17808,
-      "sha256": "dc3e7e71bc0b9b6425eb274667086f63286ab2bcdbde943c4f2c2a3668c4f75c"
+      "bytes": 18965,
+      "sha256": "a7c8ee26619607f887adf092b7bcb35af02c60cb8a08237d705a453c6c380f34"
     },
     {
       "path": "scripts/start-owner.ps1",
@@ -1001,6 +1001,11 @@
       "path": "test/recovery-binding.test.mjs",
       "bytes": 1935,
       "sha256": "c9e5a848c5d2c2760e99fc26bdea471667c52e0191673af8a2d6ef3a334aa8b5"
+    },
+    {
+      "path": "test/claim-reuse.test.mjs",
+      "bytes": 1515,
+      "sha256": "80574f040c42eb7b1254c35815133b76e54bb85e6adcbc8d5aeb55d731c554be"
     }
   ]
 }

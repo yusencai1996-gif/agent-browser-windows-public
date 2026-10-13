@@ -7,6 +7,9 @@ export async function existingOrRecover({status,assess,retire,prepare}){
   // The independent Windows assessment must prove FILE_NOT_FOUND and death.
   if(error.code!=='IPC_OUTCOME_UNKNOWN_5')throw error;
  }
+ return retireConfirmedState({assess,retire,prepare});
+}
+export async function retireConfirmedState({assess,retire,prepare}){
  const before=await assess();
  if(before?.dead!==true||before.exclusive!==true||!/^([a-f0-9]{64})$/.test(before.snapshot??''))throw failure('DEAD_RECOVERY_UNPROVEN');
  const archived=await retire(before.snapshot);

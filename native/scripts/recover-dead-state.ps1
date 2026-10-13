@@ -1,4 +1,4 @@
-param([ValidateSet('VerifyLease','Assess','Retire')][string]$Action,[uint32]$LeasePid,[string]$LeaseBirth,[uint32]$NodePid,[string]$NewClaimId,[string]$ExpectedSnapshot)
+param([ValidateSet('VerifyLease','Assess','Retire','AssessClaim','RetireClaim')][string]$Action,[uint32]$LeasePid,[string]$LeaseBirth,[uint32]$NodePid,[string]$NewClaimId,[string]$ExpectedSnapshot)
 $ErrorActionPreference='Stop';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
 $binding=Get-Content -LiteralPath (Join-Path $PSScriptRoot '..\binding.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $recoveryRoot=$binding.root
@@ -77,10 +77,21 @@ public sealed class DeadStateHandles:IDisposable {
  }
  $recoverySnapshot=[BitConverter]::ToString($recoveryHash.ComputeHash([Text.Encoding]::UTF8.GetBytes(($recoveryLines -join "`n")))).Replace('-','').ToLowerInvariant()
  $recoveryMeta=$recoveryRecords['service.json'];$recoveryMarker=$recoveryRecords['candidate-state.json']
- if(-not $recoveryMeta -or $recoveryMeta.claimId -notmatch '^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$' -or $recoveryMeta.cap -notmatch '^[a-f0-9]{64}$' -or $recoveryMarker.version -cne $recoveryVersion -or $recoveryMarker.ownerSid -cne $recoverySid.Value){throw 'RECOVERY_REGISTRATION_UNKNOWN'}
+ $recoveryClaimOnly=$Action -in @('AssessClaim','RetireClaim')
+ if($recoveryMarker.version -cne $recoveryVersion -or $recoveryMarker.ownerSid -cne $recoverySid.Value){throw 'RECOVERY_REGISTRATION_UNKNOWN'}
+ if($recoveryClaimOnly){
+  if($recoveryRecords.ContainsKey('service.json')){throw 'RECOVERY_REGISTRATION_PRESENT'}
+  if(@($recoveryRecords.Keys|Where-Object {$_ -like 'task-*'}).Count){throw 'RECOVERY_UNREGISTERED_TASK_UNKNOWN'}
+  $recoveryClaim=$NewClaimId;$recoveryLaunch=$recoveryRecords['launch-'+$recoveryClaim+'.json']
+  if(-not $recoveryLaunch -or $recoveryLaunch.created -ne $true -or $recoveryLaunch.claimId -cne $recoveryClaim -or $recoveryLaunch.launchMode -cne 'isolated-native' -or $recoveryLaunch.gateCreationHex -notmatch '^[a-f0-9]{16}$' -or $recoveryLaunch.gateCreationHex -ceq '0000000000000000'){throw 'RECOVERY_LAUNCH_UNKNOWN'}
+  foreach($recoveryId in @($recoveryLaunch.gatePid,$recoveryLaunch.servicePid,$recoveryLaunch.hostPid,$recoveryLaunch.launcherPid)){if($recoveryId -isnot [int] -and $recoveryId -isnot [long]){throw 'RECOVERY_LAUNCH_UNKNOWN'};if($recoveryId -le 0 -or $recoveryId -gt [uint32]::MaxValue){throw 'RECOVERY_LAUNCH_UNKNOWN'}}
+ }else{
+ if(-not $recoveryMeta -or $recoveryMeta.claimId -notmatch '^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$' -or $recoveryMeta.cap -notmatch '^[a-f0-9]{64}$'){throw 'RECOVERY_REGISTRATION_UNKNOWN'}
+ $recoveryClaim=$recoveryMeta.claimId
  $recoveryLaunch=$recoveryRecords['launch-'+$recoveryMeta.claimId+'.json']
  if(-not $recoveryLaunch -or $recoveryLaunch.created -ne $true -or $recoveryLaunch.claimId -cne $recoveryMeta.claimId -or $recoveryLaunch.servicePid -ne $recoveryMeta.pid -or $recoveryLaunch.hostPid -ne $recoveryMeta.hostPid -or $recoveryLaunch.gateCreationHex -notmatch '^[a-f0-9]{16}$' -or $recoveryLaunch.launchMode -cne 'isolated-native' -or $recoveryMeta.fixture -cne 'http://127.0.0.1:49189'){throw 'RECOVERY_LAUNCH_UNKNOWN'}
  foreach($recoveryTaskName in @($recoveryRecords.Keys|Where-Object {$_ -like 'task-*'})){$recoveryTask=$recoveryRecords[$recoveryTaskName];if($recoveryTask.claimId -cne $recoveryMeta.claimId -or $recoveryTask.servicePid -ne $recoveryMeta.pid -or $recoveryTask.cap -notmatch '^[a-f0-9]{64}$'){throw 'RECOVERY_TASK_UNKNOWN'}}
+ }
  function Confirm-DeadExclusive {
   foreach($recoveryOldId in @($recoveryLaunch.gatePid,$recoveryLaunch.servicePid,$recoveryLaunch.hostPid)){[DeadStateHandles]::Dead([uint32]$recoveryOldId)}
   foreach($recoveryName in @('Local\AgentBrowser.WP19C.CLI','Local\AgentBrowser.WP19D.CLI','Local\AgentBrowser.WP19E.CLI')){[DeadStateHandles]::NoMutex($recoveryName)}
@@ -99,7 +110,7 @@ public sealed class DeadStateHandles:IDisposable {
  }
  $recoveryPipeName='\\.\pipe\AgentBrowserNative.'+$recoverySid.Value
  Confirm-DeadExclusive;[DeadStateHandles]::PipeAbsent($recoveryPipeName)
- if($Action -ceq 'Assess'){[pscustomobject]@{ok=$true;dead=$true;exclusive=$true;snapshot=$recoverySnapshot}|ConvertTo-Json -Compress;exit 0}
+ if($Action -in @('Assess','AssessClaim')){[pscustomobject]@{ok=$true;dead=$true;exclusive=$true;snapshot=$recoverySnapshot}|ConvertTo-Json -Compress;exit 0}
  if($ExpectedSnapshot -notmatch '^[a-f0-9]{64}$' -or $ExpectedSnapshot -cne $recoverySnapshot){throw 'RECOVERY_STATE_CHANGED'}
  # Reserve the absent pipe while rechecking and renaming by the held directory
  # handle; never weaken sharing to bypass another process holding old state.
@@ -111,7 +122,7 @@ public sealed class DeadStateHandles:IDisposable {
  $recoveryChildNow=Get-CimInstance Win32_Process -Filter "ProcessId=$NodePid"
  if(-not $recoveryLeaseNow -or -not $recoveryChildNow -or $recoveryChildNow.ParentProcessId -ne $LeasePid -or $recoveryLeaseNow.ExecutablePath -ine $recoveryPs -or $recoveryChildNow.ExecutablePath -ine $recoveryNode -or [Diagnostics.Process]::GetProcessById($LeasePid).StartTime.ToUniversalTime().ToFileTimeUtc().ToString('x16') -cne $LeaseBirth){throw 'START_LEASE_LOST'}
  if(@(Get-ChildItem -LiteralPath $recoveryState -Force).Count -ne $recoveryFiles.Count){throw 'RECOVERY_STATE_CHANGED'}
- $recoveryLeaf='.state-recovery-'+$recoveryMeta.claimId+'-'+[Guid]::NewGuid().ToString('D')
+ $recoveryLeaf='.state-recovery-'+$recoveryClaim+'-'+[Guid]::NewGuid().ToString('D')
  $recoveryTarget=Join-Path $recoveryRoot $recoveryLeaf
  if([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($recoveryTarget)) -cne $recoveryRoot -or (Test-Path -LiteralPath $recoveryTarget)){throw 'RECOVERY_TARGET_SCOPE'}
  $recoveryHeld.ReleaseOwnReads()
